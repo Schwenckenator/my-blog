@@ -7,7 +7,7 @@
     <meta name="color-scheme" content="light dark">
     <link rel="stylesheet" href="css/pico.jade.min.css">
     <link rel="stylesheet" href="css/index.css">
-    <title>Hello world!</title>
+    <title>Schwenckenator.dev</title>
 </head>
 
 <body>
@@ -30,12 +30,236 @@
     </header>
     <main>
         <section class="container">
-            <h1>Hello world!</h1>
-            <p>
-                ni li lipu nanpa wan a!
-                <br>
-                tenpo kama la, mi sitelen insa ni
+            <h1>The start of my blog</h1>
+            <section>
+                <em>Published: 26 April 2025</em>
+            </section>
+            <p>As I'm starting to get older, I'm having more and more opinions about all sorts of things. And
+                considering the
+                stranglehold big tech companies have on social media, the best way I think to get my thoughts out there,
+                will be my
+                very own site!</p>
+            <p>I don't expect to be famous, or have anyone read this at all really. But I want to use this site as a
+                record of my
+                personal projects, and also to be the impetus to actually make those projects.</p>
+            <p>These are the goals I'm setting out for this site.
+            <ul>
+                <li>
+                    I want it to be dead simple to use
+                </li>
+                <li>
+                    I want to write my articles in markdown
+                </li>
+                <li>
+                    I want my article list, or previous / next links to be generated automatically.
+                </li>
+            </ul>
+            <p>To accomplish this, I'm going to avoid using fancy JavaScript frameworks and static site generators. I
+                don't want to deal with databases, or any server nonsense.</p>
+            <p>I think this can be a learning opportunity, so I'm going to write a static site generator from scratch
+                using (probably?) python. </p>
+
+            <h2>Getting started</h2>
+            <p>To start though, I just need to get html onto a server. I've gotten myself this domain
+                <a href="#">https://schwenckenator.dev</a>
+                from cloudflare, and I'm going to use their pages service to serve my static html.
             </p>
+            <p>I whipped up a public <a href="https://github.com/Schwenckenator/my-blog">GitHub repository</a> where
+                I'll keep this
+                site's code.
+                Next, I deployed it using
+                <a href="https://developers.cloudflare.com/pages/framework-guides/deploy-anything/">
+                    cloudflare's guide here.
+                </a>
+                It was really quite simple!
+            </p>
+            <p>
+
+            </p>
+            <section>
+                <img src="img/first-build-error.png" alt="My first build error">
+            </section>
+            <p> But, I got my first error! I need to put something into the build folder.</p>
+            <p>Using the "ship it now, make it good later" philosophy, I simply shoved a hello world template into the
+                build folder,
+                and pushed it!</p>
+            <section>
+                <img src="img/first-build-success.png" alt="My first build success">
+            </section>
+            <p>Success!</p>
+
+            <h2>Actually making the site</h2>
+            <p>So, I'm not much of a web designer. My day job (using Next/React, blegh) has me fully focused on the
+                interactivity,
+                and the css gets passed onto the designers. </p>
+            <p>However, I also want this site to look <em>okay</em>. So, I've enlisted the help of <a
+                    href="https://picocss.com/">picocss</a>!
+                After playing with tailwind before, I find it can get kinda bloaty with the classes, and I'm avoiding
+                build steps where
+                I can, so a css framework is perfect. I also just like the look of picocss. </p>
+            <p>Next, I need to actually write the html for this sites pages. I think later I'll rewrite these as a
+                template, but for
+                now, I'm happy with just hard-coding the html and pushing it into the build folder. </p>
+            <p>After futzing a bit, I've made my first draft of my main page! I've taken inspiration from
+                <a href="https://qwool.github.io/">
+                    https://qwool.github.io/
+                </a>,
+                I think its a nice simple place to start.
+            </p>
+            <pre><code>&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+
+&lt;head&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+    &lt;meta name=&quot;color-scheme&quot; content=&quot;light dark&quot;&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;css/pico.jade.min.css&quot;&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;css/index.css&quot;&gt;
+    &lt;title&gt;Schwenckenator.dev&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+    &lt;header&gt;
+        &lt;div class=&quot;container&quot;&gt;
+            &lt;h5&gt;Schwenckenator.dev&lt;/h5&gt;
+            &lt;div&gt;
+                &lt;small&gt;
+                    Thoughts on personal projects, neovim, languages, and anything else that crosses my mind
+                &lt;/small&gt;
+            &lt;/div&gt;
+            &lt;div&gt;&lt;a href=&quot;#&quot; class=&quot;secondary&quot;&gt;Home&lt;/a&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/header&gt;
+    &lt;main&gt;
+        &lt;section class=&quot;container&quot;&gt;
+            &lt;h1&gt;Hello world!&lt;/h1&gt;
+            &lt;p&gt; ni li lipu nanpa wan a! &lt;br&gt; tenpo kama la, mi sitelen insa ni &lt;/p&gt;
+        &lt;/section&gt;
+    &lt;/main&gt;
+    &lt;footer class=&quot;container&quot;&gt;
+        &lt;div&gt; Find me elsewhere! &lt;/div&gt;
+        &lt;section&gt;
+            &lt;a href=&quot;https://github.com/Schwenckenator/&quot;&gt;GitHub&lt;/a&gt;
+            /
+            &lt;a href=&quot;https://bsky.app/profile/schwenckenator.bsky.social&quot;&gt;Bluesky&lt;/a&gt;
+            /
+            &lt;a href=&quot;https://aus.social/@Schwenckenator&quot;&gt;Mastodon&lt;/a&gt;
+        &lt;/section&gt;
+    &lt;/footer&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;</code></pre>
+            <p>This has got everything I really need for now. A place to put my articles, and a simple header and
+                footer. </p>
+            <p>I'll want to add &lt;-prev / next -&gt; links too, but I can do that once I actually have multiple
+                articles to show.
+            </p>
+            <p>I'll also have to make the home page a list at some point. So much left to do!</p>
+            <h2>My first build step</h2>
+            <p>Now, it's time to write some actual code.
+                At the moment, I'm uploading the build folder to git directly. But I'd rather have the build folder
+                be ignored by git, and have cloudflare build my project on deployment. </p>
+            <p>Since there is no actual build step for the site yet, for now I think I can get away with copying a
+                source directory to the build directory like so:
+            </p>
+            <p>
+                <code>cp -r ./src ./build</code>
+            </p>
+            <p>Later, when the site actually has a build step, I'll have to convince cloudflare to run a python
+                script.
+            </p>
+
+            <h2>Finishing up this article</h2>
+            <p>So far, I've been writing this article in Obsidian, outside of the repo. So as a final step, I need
+                to
+                move this
+                markdown file into the repo, and run a python script on it to convert it to HTML.</p>
+            <p>I installed the markdown package with pip
+                <code>pip install markdown</code>
+            </p>
+            <p>And tested it out with the interactive REPL
+            </p>
+            <pre><code>&gt;&gt;&gt; import markdown
+&gt;&gt;&gt; markdown.markdown(&quot;# Hey Mum&quot;)
+'&lt;h1&gt;Hey Mum&lt;/h1&gt;'</code></pre>
+            <p>Satisfied that this works, I wrote a small terminal script that loads the file from the first
+                argument,
+                and spits the
+                result out into the second.</p>
+            <p>First I checked that I could read terminal arguments
+            <pre><code>import sys
+print(sys.argv)
+# Input "python3 convert.py first second third"
+# Output ['convert.py', 'first', 'second', 'third']</code></pre>
+            <p>Then I put the code to convert the file, and let her rip!
+                (With lots of printing, because I can.)
+            <pre><code>import markdown
+import sys
+
+read_path = sys.argv[1]
+write_path = sys.argv[2]
+
+if not read_path or not write_path:
+    print('Arg 1 is read path, Arg 2 is write path')
+    return
+
+with open(read_path, 'r') as f:
+    text = f.read()
+    print('Markdown:')
+    print(text)
+    html = markdown.markdown(text)
+    print('HTML:')
+    print(html)
+
+with open(write_path, 'w') as f:
+    f.write(html)</code></pre>
+            <p>And I got an error!
+            <pre><code>File "/home/matt/projects/my-blog/convert.py", line 9
+return
+^^^^^^
+SyntaxError: 'return' outside function</code></pre>
+            </p>
+            <p>So I swapped the <code>if .. return</code> for a couple of <code>assert</code> statements</p>
+            <pre><code>import markdown
+import sys
+
+read_path = sys.argv[1]
+write_path = sys.argv[2]
+
+assert read_path, "Read file path and write file path not included!"
+assert write_path, "Write file path not included!"
+
+with open(read_path, 'r') as f:
+    text = f.read()
+    print('Markdown:')
+    print(text)
+    html = markdown.markdown(text)
+    print('HTML:')
+    print(html)
+
+with open(write_path, 'w') as f:
+    f.write(html)</code></pre>
+            <p>
+                And it works! I mean, I got an output file at least. There's still a lot of work cleaning it up, but it's better than nothing!
+            </p>
+            <h2>Thoughts</h2>
+            <p>So, all I've got left to do is put finish writing this article, put it through my converter,
+                clean it up, and publish!
+            </p>
+            <blockquote>
+                I'm writing this after conversion, directly into the HTML. So the next order of business is
+                working out how to make the converter not mangle my code blocks,
+                because that took a <strong><em>lot</em></strong> of work to fix.<br>
+            </blockquote>
+            <p>After that, I think I want to make my python script crawl through the pages folder, converting
+                all of the files, and saving the html to the build folder.
+                I'll also need to make the index page a list of all my articles. At the moment, this is all I've
+                got, so homepage it is!</p>
+            <p>I could also work on automatically building links in, but I want to chip away at this project,
+                slowly building it up so I don't burn out. And once I'm in the groove of writing a post every week or so, maybe I'll
+                start working on games, or another tool after finishing this.</p>
+            <p>Until next time,<br>
+                pona tawa sina! mi tawa.</p>
         </section>
     </main>
     <footer class="container">
