@@ -13,18 +13,11 @@ header {
     background-color: var(--pico-card-background-color);
 }
 
-.flex-container {
-    display: flex;
+blockquote>*:last-child {
+    margin-bottom: 0;
 }
 
-.centre {
-    align-content: center;
-}
-
-.flex-grow {
-    flex: 1 0 auto;
-}
-
-.flex-shrink {
-    flex: 0 1 auto;
+.to-end {
+    justify-content: end;
+    text-align: end;
 }

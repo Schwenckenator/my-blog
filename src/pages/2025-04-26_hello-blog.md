@@ -1,6 +1,6 @@
 ---
 title: "The start of my blog"
-publish_date: 2025-04-26
+publish_date: "26 April 2025"
 is_published: true
 slug: 'start-of-blog'
 ---

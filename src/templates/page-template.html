@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <link rel="stylesheet" href="/css/pico.jade.min.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <title>Schwenckenator.dev</title>
+</head>
+
+<body>
+    <header>
+        <hgroup class="container">
+            <h4>
+                Schwenckenator.dev
+            </h4>
+            <p>
+                Thoughts on personal projects, neovim, languages, and anything else that crosses my mind
+            </p>
+        </hgroup>
+        <nav class="container">
+            <a href="/" class="secondary">
+                Home
+            </a>
+        </nav>
+    </header>
+    <main>
+        <section class="container">
+            <h1>{{ title }}</h1>
+            <section>
+                <em>Published: {{ publish_date }}</em>
+            </section>
+            {{ content }}
+        </section>
+    </main>
+    <footer class="container">
+        <div>
+            Find me elsewhere!
+        </div>
+        <section>
+            <a href="https://github.com/Schwenckenator/">
+                GitHub
+            </a>
+            /
+            <a href="https://bsky.app/profile/schwenckenator.bsky.social">
+                Bluesky
+            </a>
+            /
+            <a href="https://aus.social/@Schwenckenator">
+                Mastodon
+            </a>
+        </section>
+    </footer>
+</body>
+
+</html>

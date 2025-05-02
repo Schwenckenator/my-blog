@@ -5,37 +5,30 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <link rel="stylesheet" href="css/pico.jade.min.css">
-    <link rel="stylesheet" href="css/index.css">
-    <title>Hello world!</title>
+    <link rel="stylesheet" href="/css/pico.jade.min.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <title>Schwenckenator.dev</title>
 </head>
 
 <body>
     <header>
-        <div class="container">
-            <h5>
+        <hgroup class="container">
+            <h4>
                 Schwenckenator.dev
-            </h5>
-            <div>
-                <small>
-                    Thoughts on personal projects, neovim, languages, and anything else that crosses my mind
-                </small>
-            </div>
-            <div>
-                <a href="#" class="secondary">
-                    Home
-                </a>
-            </div>
-        </div>
+            </h4>
+            <p>
+                Thoughts on personal projects, neovim, languages, and anything else that crosses my mind
+            </p>
+        </hgroup>
+        <nav class="container">
+            <a href="/" class="secondary">
+                Home
+            </a>
+        </nav>
     </header>
     <main>
         <section class="container">
-            <h1>Hello world!</h1>
-            <p>
-                ni li lipu nanpa wan a!
-                <br>
-                tenpo kama la, mi sitelen insa ni
-            </p>
+            {{ content }}
         </section>
     </main>
     <footer class="container">
