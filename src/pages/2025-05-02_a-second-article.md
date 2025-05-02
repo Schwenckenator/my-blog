@@ -1,3 +1,9 @@
+---
+title: "The second article"
+publish_date: 2025-05-02
+is_published: false
+slug: 'second-article'
+---
 sina lukin e ni la, sina pona a!
 
 Welcome back, I'm still working on my static site generator / blog. This time I'll try and fix my codeblocks, and get a homepage with both of my posts on it done! Bonus points if I can make previous / next links in the articles themselves.

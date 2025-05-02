@@ -1,3 +1,9 @@
+---
+title: "The start of my blog"
+publish_date: 2025-04-26
+is_published: true
+slug: 'start-of-blog'
+---
 As I'm starting to get older, I'm having more and more opinions about all sorts of things. And considering the stranglehold big tech companies have on social media, the best way I think to get my thoughts out there, will be my very own site!
 
 I don't expect to be famous, or have anyone read this at all really. But I want to use this site as a record of my personal projects, and also to be the impetus to actually make those projects.
@@ -13,29 +19,31 @@ I think this can be a learning opportunity, so I'm going to write a static site 
 
 ## Getting started
 
-To start though, I just need to get html onto a server. I've gotten myself this domain https://schwenckenator.dev from cloudflare, and I'm going to use their pages service to serve my static html.
+To start though, I just need to get html onto a server. I've gotten myself this domain [https://schwenckenator.dev](https://schwenckenator.dev) from cloudflare, and I'm going to use their pages service to serve my static html.
 
 I whipped up a public [GitHub repository](https://github.com/Schwenckenator/my-blog) where I'll keep this site's code. 
-Next, I deployed it using the guide here. It was really quite simple!
-https://developers.cloudflare.com/pages/framework-guides/deploy-anything/
+Next, I deployed it using [cloudflare's guide here](https://developers.cloudflare.com/pages/framework-guides/deploy-anything/). It was really quite simple! 
 
-![[Screenshot from 2025-04-22 23-07-46.png]]
+
+![My first build error](/img/first-build-error.png)
+
 But, I got my first error! I need to put something into the build folder.
 
 Using the "ship it now, make it good later" philosophy, I simply shoved a hello world template into the build folder, and pushed it!
 
-![[Screenshot from 2025-04-22 23-09-54.png]]
+![My first build success!](/img/first-build-success.png)
+
 Success!
 
 ## Actually making the site
 So, I'm not much of a web designer. My day job (using Next/React, blegh) has me fully focused on the interactivity, and the css gets passed onto the designers. 
 
 However, I also want this site to look *okay*. So, I've enlisted the help of [picocss](https://picocss.com/)!
-After playing with tailwind a bit, I find it can get kinda bloaty with the classes, and I'm avoiding building where I can, so a css framework is perfect. I also just like the look of picocss. 
+After playing with tailwind before, I find it can get kinda bloaty with the classes, and I'm avoiding build steps where I can, so a css framework is perfect. I also just like the look of picocss. 
 
 Next, I need to actually write the html for this sites pages. I think later I'll rewrite these as a template, but for now, I'm happy with just hard-coding the html and pushing it into the build folder. 
 
-After futzing a bit, I've made my first draft of my main page! I've taken inspiration from https://qwool.github.io/, I think its a nice simple place to start.
+After futzing a bit, I've made my first draft of my main page! I've taken inspiration from [https://qwool.github.io/](https://qwool.github.io/), I think its a nice simple place to start.
 
 ```html
 <!doctype html>
@@ -131,7 +139,6 @@ And tested it out with the interactive REPL
 >>> import markdown
 >>> markdown.markdown("# Hey Mum")
 '<h1>Hey Mum</h1>'
->>>
 ```
 
 Satisfied that this works, I wrote a small terminal script that loads the file from the first argument, and spits the result out into the second.
@@ -147,7 +154,7 @@ print(sys.argv)
 ```
 
 Then I put the code to convert the file, and let her rip!
-(With lots of printing, just as God intended.)
+(With lots of printing, because I can.) 
 ```python
 import markdown
 import sys
@@ -169,7 +176,6 @@ with open(read_path, 'r') as f:
 
 with open(write_path, 'w') as f:
     f.write(html)
-
 ```
 
 And I got an error!
@@ -183,7 +189,6 @@ SyntaxError: 'return' outside function
 So I swapped the `if .. return` for a couple of `assert` statements
 
 ```python
-
 import markdown
 import sys
 
@@ -203,7 +208,6 @@ with open(read_path, 'r') as f:
 
 with open(write_path, 'w') as f:
     f.write(html)
-
 ```
 
 And it works! I mean, I got an output file at least. There's still a lot of work cleaning it up, but it's better than nothing!
@@ -211,9 +215,19 @@ And it works! I mean, I got an output file at least. There's still a lot of work
 ## Thoughts
 So, all I've got left to do is put finish writing this article, put it through my converter, clean it up, and publish!
 
-Next, I think I want to make my python script crawl through the pages folder, converting all of the files, and saving the html to the build folder. 
-I'll also need to make the index page a list of all my articles. At the moment, this is all I've got, so homepage it is!
+> I'm writing this after conversion, directly into the HTML. So the next order
+> of business is working out how to make the converter not mangle my code
+> blocks, because that took a ***lot*** of work to fix.
 
-I could also work on automatically building links in, but I want to chip away at this project, slowly building it up so I don't burn out. And once I'm in the groove of writing a post every week or so, maybe I'll start working on games, or another tool after finishing this.
+After that, I think I want to make my python script crawl through the pages
+folder, converting all of the files, and saving the html to the build folder.
+I'll also need to make the index page a list of all my articles. At the moment,
+this is all I've got, so homepage it is!
 
-Until next time, pona tawa sina!
+I could also work on automatically building links in, but I want to chip away
+at this project, slowly building it up so I don't burn out. And once I'm in the
+groove of writing a post every week or so, maybe I'll start working on games,
+or another tool after finishing this.
+
+Until next time,\
+pona tawa sina! mi tawa.
