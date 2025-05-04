@@ -254,4 +254,24 @@ Time to push it, and make cloudflare use it!
 ## Building on cloudflare
 The last thing I want to do, is have to run the build script on my local machine, push the results and have cloudflare look at the build folder. Yuck. That would be the source of so many headaches about "Why doesn't it show up on the website?"
 
-I became a programmer because I'm lazy, and I want the computer to do the boring stuff for me! Thankfully, the cloudflare build system has python installed already, so all I should need to do, is point the build at my new python script, and everything should work!
+I became a programmer because I'm lazy, and I want the computer to do the
+boring stuff for me! Thankfully, the cloudflare build system has python
+installed already, so all I should need to do, is point the build at my new
+python script, and everything should work!
+
+![Of course it's an error](/img/python-script-build-error.png)
+
+Yeah that sounds about right. So obviously I need to install all of the libraries I'm using for the script.
+
+I whipped up a quick bash script that should install all of my dependencies, then run my python script.
+Let's try again!
+```bash
+#!/usr/bin/env bash
+
+# install packages
+pip3 install commonmark
+pip3 install frontmatter
+
+# run python script
+python3 build-blog.py
+```
