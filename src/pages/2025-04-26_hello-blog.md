@@ -1,8 +1,9 @@
 ---
 title: "The start of my blog"
-publish_date: "26 April 2025"
+publish_date: 2025-04-26
 is_published: true
 slug: 'start-of-blog'
+description: "As I'm starting to get older, I'm having more and more opinions about all sorts of things. And considering the stranglehold big tech companies have on social media, the best way I think to get my thoughts out there, will be my very own site!..."
 ---
 As I'm starting to get older, I'm having more and more opinions about all sorts of things. And considering the stranglehold big tech companies have on social media, the best way I think to get my thoughts out there, will be my very own site!
 
