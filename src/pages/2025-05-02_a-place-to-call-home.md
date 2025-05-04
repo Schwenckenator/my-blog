@@ -19,8 +19,8 @@ As I said, disaster. I maybe could have worked out how to turn off my formatter 
 
 So I did a little research and found that pythons "markdown" package is not the same markdown as Obsidian! That explains a lot!
 
-![[markdown-not-commonmark.png]]
-> https://python-markdown.github.io/#Features
+![markdown-not-commonmark.png](/img/markdown-not-commonmark.png) \
+[https://python-markdown.github.io/#Features](https://python-markdown.github.io/#Features)
 
 I found a python package for commonmark, and gave it a whirl.
 
@@ -278,3 +278,19 @@ python3 build-blog.py
 
 After some false starts, (not explicitly calling for bash in the cloudflare
 build command, installing the wrong frontmatter package), it works!
+
+## Closing thoughts
+While this was not too difficult, it was still a pretty big step for this project. I've now got a homepage, 
+both of my articles appearing on it, and links to those articles. The markdown now gets built
+automatically without needing manual cleanup, and inserted into my prepared templates. 
+
+And of course, cloudflare now runs my build script and builds my site for me too.
+
+As for next steps, the bonus points I mentioned at the start would be nice, so people could read
+other articles without returning to the homepage. Then after that, I think I'll be able to put this
+down for a little bit, and work on something else, and write about that!
+
+I hope anyone who read this far enjoyed my explanation!
+
+Until next time, \
+pona tawa sina! mi tawa.
