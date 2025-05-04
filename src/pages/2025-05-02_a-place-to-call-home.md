@@ -270,8 +270,11 @@ Let's try again!
 
 # install packages
 pip3 install commonmark
-pip3 install frontmatter
+pip3 install python-frontmatter
 
 # run python script
 python3 build-blog.py
 ```
+
+After some false starts, (not explicitly calling for bash in the cloudflare
+build command, installing the wrong frontmatter package), it works!
