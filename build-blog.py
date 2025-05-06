@@ -6,10 +6,23 @@ import frontmatter
 import datetime
 
 
+class PageData():
+    """A data class to hold page data"""
+
+    def __init__(self, filepath, metadata, content):
+        self.filepath = filepath
+        self.metadata = metadata
+        self.content = content
+
+
 def template_replace(metadata, template):
+    """replaces the template placeholder with metadata"""
     result = template
     for key, value in metadata.items():
         print('metadata key - ', key, '; value - ', value)
+        if value is None:
+            print("It's nothing, skipping")
+            continue
         if isinstance(value, bool):
             print("It's a bool, don't replace anything!", value)
             continue
@@ -49,7 +62,6 @@ with open('./src/templates/page-link.partial.html', 'r') as file:
 # A list of pages to save for the index page
 pages = []
 
-# Loop over glob of markdown files in 'pages' directory
 for f in glob.iglob(f"{source_dir}/**/*.md"):
     # Open markdown file
     with open(f, 'r') as file:
@@ -62,23 +74,28 @@ for f in glob.iglob(f"{source_dir}/**/*.md"):
     if not metadata['is_published']:
         continue
 
-    # Save metadata for index page later
-    pages.append(metadata)
+    # Save data in class
+    page_data = PageData(f, metadata, content)
+    # Append to pages list
+    pages.append(page_data)
 
-    print('metadata', metadata)
+# Sort the pages by `publish_date`
+pages.sort(key=lambda p: p.metadata['publish_date'], reverse=True)
 
+for page in pages:
     # Create pathname for build dir
-    slug = metadata['slug'] or os.path.splitext(os.path.basename(f))[0]
+    slug = page.metadata['slug'] or os.path.splitext(
+        os.path.basename(page.filepath))[0]
 
     destination = os.path.join(build_dir, slug + '.html')
 
     # copy template to new variable
     html = template['page']
     # replace the content template handle with the content from the html
-    html = html.replace("{{ content }}", content)
+    html = html.replace("{{ content }}", page.content)
 
     # replace the other handles
-    html = template_replace(metadata, html)
+    html = template_replace(page.metadata, html)
 
     with open(destination, 'w') as file:
         # write file
@@ -86,15 +103,16 @@ for f in glob.iglob(f"{source_dir}/**/*.md"):
 
     print(f"file written to {destination}")
 
+
 # Create index page
 html = template['index']
 destination = os.path.join(build_dir, 'index.html')
 content = ""
 
 for page in pages:
-    print('page - ', page)
+    print('page metadata - ', page.metadata)
     # Replace metadata handles
-    link_html = template_replace(page, template['page-link'])
+    link_html = template_replace(page.metadata, template['page-link'])
     # Add new link to index content
     content += link_html + "\n"
 
