@@ -21,7 +21,8 @@ def template_replace(metadata, template):
     for key, value in metadata.items():
         print('metadata key - ', key, '; value - ', value)
         if value is None:
-            print("It's nothing, skipping")
+            print("It's NONE, deleting the handler")
+            result = result.replace(f"{{{{ {key} }}}}", "")
             continue
         if isinstance(value, bool):
             print("It's a bool, don't replace anything!", value)
@@ -58,6 +59,10 @@ with open('./src/templates/page-template.html', 'r') as file:
     template['page'] = file.read()
 with open('./src/templates/page-link.partial.html', 'r') as file:
     template['page-link'] = file.read()
+with open('./src/templates/next-link.partial.html', 'r') as file:
+    template['next-link'] = file.read()
+with open('./src/templates/prev-link.partial.html', 'r') as file:
+    template['prev-link'] = file.read()
 
 # A list of pages to save for the index page
 pages = []
@@ -82,7 +87,7 @@ for f in glob.iglob(f"{source_dir}/**/*.md"):
 # Sort the pages by `publish_date`
 pages.sort(key=lambda p: p.metadata['publish_date'], reverse=True)
 
-for page in pages:
+for index, page in enumerate(pages):
     # Create pathname for build dir
     slug = page.metadata['slug'] or os.path.splitext(
         os.path.basename(page.filepath))[0]
@@ -93,6 +98,31 @@ for page in pages:
     html = template['page']
     # replace the content template handle with the content from the html
     html = html.replace("{{ content }}", page.content)
+
+    # Prepare other article links
+    if index > 0:
+        next = pages[index-1]
+        link_metadata = {
+            'href': next.metadata['slug'],
+            'title': next.metadata['title'],
+        }
+        link = template_replace(link_metadata, template['next-link'])
+        page.metadata['next_link'] = link
+    else:
+        # Delete the template handle
+        page.metadata['next_link'] = None
+
+    if index < len(pages) - 1:
+        prev = pages[index+1]
+        link_metadata = {
+            'href': prev.metadata['slug'],
+            'title': prev.metadata['title'],
+        }
+        link = template_replace(link_metadata, template['prev-link'])
+        page.metadata['prev_link'] = link
+    else:
+        # Delete the template handle
+        page.metadata['prev_link'] = None
 
     # replace the other handles
     html = template_replace(page.metadata, html)
