@@ -30,8 +30,14 @@
         <section class="container">
             <h1>{{ title }}</h1>
             <section>
+                <a href="{{ previous_href }}">← {{ previous_title }}</a>
+                <span style="margin: 0 10px;"> | </span>
+                <a href="{{ next_href }}">{{ next_title }} →</a>
+            </section>
+            <section>
                 <em>Published: {{ publish_date }}</em>
             </section>
+            <hr>
             {{ content }}
         </section>
     </main>
