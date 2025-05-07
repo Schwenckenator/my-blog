@@ -21,3 +21,8 @@ blockquote>*:last-child {
     justify-content: end;
     text-align: end;
 }
+
+.short-li>li {
+    padding-top: 0;
+    padding-bottom: 0;
+}

@@ -5,16 +5,6 @@ is_published: true
 slug: sorting-and-linking
 description: My articles are sorting in the wrong order, and I want to put previous / next links into my pages.
 ---
-Plan for this article
-- [x] Sort pages in newest first order
-- [x] Add next / previous links to page template
-- [ ] add tags to articles, display them on homepage links
-	- [ ] Bonus points later, make tag pages
-- [x] Replace obsidian links with markdown links before building ??
-- [ ] RSS feed?
-
-___
-
 Welcome back to my series about building this very website!
 
 Early readers, if there are indeed early readers, may have noticed that my homepage currently displays my articles in chronological order. While this is fine when I have two articles, it is less desirable with more articles. 
