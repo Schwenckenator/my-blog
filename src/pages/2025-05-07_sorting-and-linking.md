@@ -1,16 +1,16 @@
 ---
-title: Article 3
-publish_date: 2025-05-09
+title: Sorting and Linking
+publish_date: 2025-05-07
 is_published: true
-slug: article-3
-description:
+slug: sorting-and-linking
+description: My articles are sorting in the wrong order, and I want to put previous / next links into my pages.
 ---
 Plan for this article
 - [x] Sort pages in newest first order
 - [x] Add next / previous links to page template
 - [ ] add tags to articles, display them on homepage links
 	- [ ] Bonus points later, make tag pages
-- [ ] Replace obsidian links with markdown links before building ??
+- [x] Replace obsidian links with markdown links before building ??
 - [ ] RSS feed?
 
 ___
@@ -125,7 +125,8 @@ And the links work! But, it's revealed another problem...
 
 ## Unused template elements
 Once the links were working, I noticed something on the first page.
-![The template {{ previous_title }} is still there](template-still-there.png)
+
+> ![The template {{ previous_title }} is still there](template-still-there.png)
 
 This makes total sense, but it's a bigger problem that it seems. 
 Because the template has these special sections, the simple solution is to check after all substitutions have been made, and delete any remaining template handles. Which would work to get rid of the visible handle.
@@ -165,7 +166,8 @@ Now lets make it actually work. Leaning on the template function I already have,
 ```
 
 With this in place, the template handle if still of course there, but the `<a>` tag is gone.
-![{{ prev_link }} is visible, but it's no longer a link](template-there-but-tag-gone.png)
+
+> ![{{ prev_link }} is visible, but it's no longer a link](template-there-but-tag-gone.png)
 
 Now, I could write some code that deletes any left over handles on finishing. But that seems a bit like magic, and I want this to be a low magic build system. I can foresee pulling my hair out because my template won't render the thing I'm giving it, but I've made a simple spelling mistake. No thanks.
 
@@ -200,7 +202,8 @@ Then I use the else blocks of my prev / next checks to assign the metadata link 
 ```
 
 And just like that, the first page's previous link is gone!
-![The previous link is gone](template-gone.png)
+
+> ![The previous link is gone](template-gone.png)
 
 Lastly, of course I noticed after I did all this, I used the current page's metadata for the links, instead of the previous / next page's. So all my images have links with the wrong title text. Ah well, this is how real programming works. Simple enough fix, change `page.metadata` to `link_metadata` where appropriate.
 
@@ -234,10 +237,37 @@ Lastly, of course I noticed after I did all this, I used the current page's meta
 ## Fixing the replacement
 And now I discover, after checking this article so far, that I have done something very dumb. In the articles content above, my template handlers have been replaced by my function. 
 
-![Code example turned into real link](code-example-has-link.png)
+> ![Code example turned into real link](code-example-has-link.png)
 
 In theory it's a simple fix, I just have to replace the content after the other template tags. 
-![Template handlers not replaced](content-not-replaced.png)
+
+> ![Template handlers not replaced](content-not-replaced.png)
 
 Easy!
 
+## Converting Obsidian image link paths
+One last thing I've noticed, before I sign off and publish this, is that Obsidian is not currently playing nice with my images. I can have them render in Obsidian, or my built page, but not both. I like writing my articles in Obsidian, so I'm going to add an extra build step for the images, before the markdown is parsed to HTML.
+
+The problem is with file paths. If I write an explicit file path, it will work for the server, but because the articles are written with a different working directory, it doesn't work in Obsidian. So I can add a simple change where all images get modified to have a path to the image file. 
+
+I ended up adding this to my file parsing  loop, and it works! I now have my images in Obsidian while I'm writing, and in the finished site! 
+```python
+    # Open markdown file
+    with open(f, 'r') as file:
+        # extract frontmatter and raw markdown
+        metadata, raw = frontmatter.parse(file.read())
+
++       # add `/img/` to image urls
++       raw = re.sub(r"!\[(.*)\]\((.*)\)", r"![\1](/img/\2)", raw)
+
+        # convert content to html
+        content = commonmark.commonmark(raw)
+```
+
+## What's next?
+So this blog build system is coming along quite nicely now. I can write all my articles in Obsidian with no cleanup needed for the build output, and I've extended my templating engine to deal with article links. I'm honestly pretty happy with how this is turning out!
+
+I think I have a couple more things I'd like to do before putting this project (but not the blog!) down for a bit. First, I want to include some tags for articles, visible on the home page. As a diversify my articles, I want to make sure the reader knows what they're getting into. And I'd like to build an RSS file, so people that like them can read that way. 
+
+Until next time, \
+pona tawa sina! mi tawa.

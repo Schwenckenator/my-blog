@@ -4,6 +4,7 @@ import glob
 import commonmark
 import frontmatter
 import datetime
+import re
 
 
 class PageData():
@@ -72,6 +73,10 @@ for f in glob.iglob(f"{source_dir}/**/*.md"):
     with open(f, 'r') as file:
         # extract frontmatter and raw markdown
         metadata, raw = frontmatter.parse(file.read())
+
+        # add `/img/` to image urls
+        raw = re.sub(r"!\[(.*)\]\((.*)\)", r"![\1](/img/\2)", raw)
+
         # convert content to html
         content = commonmark.commonmark(raw)
 

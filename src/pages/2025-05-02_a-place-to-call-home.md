@@ -19,7 +19,7 @@ As I said, disaster. I maybe could have worked out how to turn off my formatter 
 
 So I did a little research and found that pythons "markdown" package is not the same markdown as Obsidian! That explains a lot!
 
-![markdown-not-commonmark.png](/img/markdown-not-commonmark.png) \
+![markdown-not-commonmark.png](markdown-not-commonmark.png) \
 [https://python-markdown.github.io/#Features](https://python-markdown.github.io/#Features)
 
 I found a python package for commonmark, and gave it a whirl.
@@ -259,7 +259,7 @@ boring stuff for me! Thankfully, the cloudflare build system has python
 installed already, so all I should need to do, is point the build at my new
 python script, and everything should work!
 
-![Of course it's an error](/img/python-script-build-error.png)
+![Of course it's an error](python-script-build-error.png)
 
 Yeah that sounds about right. So obviously I need to install all of the libraries I'm using for the script.
 

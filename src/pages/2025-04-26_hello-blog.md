@@ -26,13 +26,13 @@ I whipped up a public [GitHub repository](https://github.com/Schwenckenator/my-b
 Next, I deployed it using [cloudflare's guide here](https://developers.cloudflare.com/pages/framework-guides/deploy-anything/). It was really quite simple! 
 
 
-![My first build error](/img/first-build-error.png)
+![My first build error](first-build-error.png)
 
 But, I got my first error! I need to put something into the build folder.
 
 Using the "ship it now, make it good later" philosophy, I simply shoved a hello world template into the build folder, and pushed it!
 
-![My first build success!](/img/first-build-success.png)
+![My first build success!](first-build-success.png)
 
 Success!
 
