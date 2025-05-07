@@ -96,8 +96,6 @@ for index, page in enumerate(pages):
 
     # copy template to new variable
     html = template['page']
-    # replace the content template handle with the content from the html
-    html = html.replace("{{ content }}", page.content)
 
     # Prepare other article links
     if index > 0:
@@ -126,6 +124,9 @@ for index, page in enumerate(pages):
 
     # replace the other handles
     html = template_replace(page.metadata, html)
+
+    # replace the content template handle with the content from the html
+    html = html.replace("{{ content }}", page.content)
 
     with open(destination, 'w') as file:
         # write file
