@@ -25,14 +25,15 @@ def template_replace(metadata, template):
             print("It's NONE, deleting the handler")
             result = result.replace(f"{{{{ {key} }}}}", "")
             continue
+        if isinstance(value, list):
+            print("It's a list, do nothing")
+            continue
         if isinstance(value, bool):
             print("It's a bool, don't replace anything!", value)
             continue
         if isinstance(value, datetime.date):
             print("It's a date!", value)
             value = value.strftime("%d %B %Y")
-        else:
-            print("It's not a date.", value)
         print('final value', value)
         result = result.replace(f"{{{{ {key} }}}}", value)
     return result
@@ -64,6 +65,8 @@ with open('./src/templates/next-link.partial.html', 'r') as file:
     template['next-link'] = file.read()
 with open('./src/templates/prev-link.partial.html', 'r') as file:
     template['prev-link'] = file.read()
+with open('./src/templates/tag.partial.html', 'r') as file:
+    template['tag'] = file.read()
 
 # A list of pages to save for the index page
 pages = []
@@ -147,6 +150,16 @@ content = ""
 
 for page in pages:
     print('page metadata - ', page.metadata)
+
+    tags_html = ""
+    if page.metadata.get('tags'):
+        for tag in page.metadata['tags']:
+            tag_template = template['tag']
+            tag_html = tag_template.replace("{{ tag }}", tag)
+            tags_html += tag_html + "\n"
+
+    page.metadata['tag_list'] = tags_html
+
     # Replace metadata handles
     link_html = template_replace(page.metadata, template['page-link'])
     # Add new link to index content
