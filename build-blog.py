@@ -16,6 +16,123 @@ class PageData():
         self.content = content
 
 
+def get_block_regex(key):
+    """Returns regex that will match the block, and capture the contents"""
+    return fr"{{{{\s*{key}\s*}}}}(.*?){{{{\s*/{key[1:]}\s*}}}}"
+
+
+def fill_template(data_dict, template):
+    keys = re.findall(r"{{\s*(.*?)\s*}}", template)
+    result = template
+    for key in keys:
+
+        if '#if' in key:
+            result = fill_if(key, data_dict, result)
+            continue
+
+        if '#each' in key:
+            result = fill_each(key, data_dict, result)
+            continue
+
+        result = fill_data(key, data_dict, result)
+
+    return result
+
+
+def get_match(match):
+    if match.group(1):
+        return match.group(1)
+    return ""
+
+
+def fill_if(key, data_dict, template):
+
+    result = template
+    condition = key.replace("#if ", "")
+    value = data_dict.get(condition)
+
+    regex = get_block_regex(key)
+
+    if value:
+        result = re.sub(
+            pattern=regex,
+            repl=get_match,
+            string=template,
+            count=1,
+            flags=re.S
+        )
+    else:
+        result = re.sub(
+            pattern=regex,
+            repl="",
+            string=template,
+            count=1,
+            flags=re.S
+        )
+    return result
+
+
+def fill_each(key, data_dict, template):
+    dict_key = key.replace("#each ", "")
+    value = data_dict.get(dict_key)
+
+    regex = get_block_regex(key)
+
+    if not isinstance(value, list):
+        result = re.sub(
+            pattern=regex,
+            repl="",
+            string=template,
+            count=1,
+            flags=re.S
+        )
+        return result
+
+    inner_template = re.search(regex, template, flags=re.S).group(1)
+
+    content = ""
+
+    for v in value:
+        print('v', v)
+        # If not a dict, make it a dict with a dot for a key
+        if not isinstance(v, dict):
+            v = {'.': v}
+
+        content += fill_template(v, inner_template) + "\n"
+
+    result = re.sub(
+        pattern=regex,
+        repl=content,
+        string=template,
+        count=1,
+        flags=re.S
+    )
+
+    return result
+
+
+def fill_data(key, data_dict, template):
+    value = data_dict.get(key)
+
+    if value is None or isinstance(value, bool) or isinstance(value, list):
+        return re.sub(
+            pattern=fr"{{{{\s*{key}\s*}}}}",
+            repl="",
+            string=template,
+            count=1,
+        )
+
+    if isinstance(value, datetime.date):
+        value = value.strftime("%d %B %Y")
+
+    return re.sub(
+        pattern=fr"{{{{\s*{key}\s*}}}}",
+        repl=str(value),
+        string=template,
+        count=1,
+    )
+
+
 def template_replace(metadata, template):
     """replaces the template placeholder with metadata"""
     result = template
@@ -87,6 +204,10 @@ def replace_template_each(each_key, data_list, template):
 
     return result
 
+
+#######
+# Main
+#######
 
 source_dir = "src"
 build_dir = "build"
@@ -182,6 +303,7 @@ for index, page in enumerate(pages):
 
     # replace the other handles
     html = template_replace(page.metadata, html)
+    # html = fill_template(page.metadata, html)
 
     # replace the content template handle with the content from the html
     html = html.replace("{{ content }}", page.content)
@@ -200,30 +322,11 @@ content = ""
 
 index_data = {'pages': []}
 for page in pages:
-    # print('page metadata - ', page.metadata)
     index_data['pages'].append(page.metadata)
-# print('index_data', index_data)
 
-# for page in pages:
-#     # print('page metadata - ', page.metadata)
-#
-#     tags_html = ""
-#     if page.metadata.get('tags'):
-#         for tag in page.metadata['tags']:
-#             tag_template = template['tag']
-#             tag_html = tag_template.replace("{{ tag }}", tag)
-#             tags_html += tag_html + "\n"
-#
-#     page.metadata['tag_list'] = tags_html
-#
-#     # Replace metadata handles
-#     link_html = template_replace(page.metadata, template['page-link'])
-#     # Add new link to index content
-#     content += link_html + "\n"
+html = fill_template(index_data, template['index'])
+print(html)
 
-html = template_replace(index_data, template['index'])
-
-# html = html.replace("{{ content }}", content)
 with open(destination, 'w') as file:
     file.write(html)
 

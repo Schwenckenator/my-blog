@@ -29,7 +29,6 @@
     </header>
     <main>
         <section class="container">
-            <!-- {{ content }} -->
             {{ #each pages }}
             <article>
                 <hgroup>
@@ -47,12 +46,13 @@
                         </small>
                     </p>
                 </hgroup>
+                {{ #if tags }}
                 <footer>
-                    <!-- {{ tag_list }} -->
                     {{ #each tags }}
                     <code>#{{ . }}</code>
                     {{ /each tags }}
                 </footer>
+                {{ /if tags }}
             </article>
             {{ /each pages }}
         </section>
