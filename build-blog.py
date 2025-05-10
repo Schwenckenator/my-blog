@@ -20,22 +20,71 @@ def template_replace(metadata, template):
     """replaces the template placeholder with metadata"""
     result = template
     for key, value in metadata.items():
-        print('metadata key - ', key, '; value - ', value)
+        # print('metadata key - ', key, '; value - ', value)
         if value is None:
-            print("It's NONE, deleting the handler")
+            # print("It's NONE, deleting the handler")
             result = result.replace(f"{{{{ {key} }}}}", "")
             continue
         if isinstance(value, list):
-            print("It's a list, do nothing")
+            # print("It's a list, do nothing")
+            result = replace_template_each(key, value, result)
             continue
         if isinstance(value, bool):
-            print("It's a bool, don't replace anything!", value)
+            # print("It's a bool, don't replace anything!", value)
             continue
         if isinstance(value, datetime.date):
-            print("It's a date!", value)
+            # print("It's a date!", value)
             value = value.strftime("%d %B %Y")
-        print('final value', value)
+        # print('final value', value)
         result = result.replace(f"{{{{ {key} }}}}", value)
+    return result
+
+
+def replace_template_each(each_key, data_list, template):
+    """replaces a list block"""
+    print('replace_template_each')
+
+    print('each_key', each_key)
+    # print('data_list', data_list)
+    # print('template', template)
+
+    each_start = f"{{{{ #each {each_key} }}}}"
+    each_end = f"{{{{ /each {each_key} }}}}"
+    regex = fr"{each_start}(.*?){each_end}"
+    print('each_start', each_start)
+    print('each_end', each_end)
+    print('regex', regex)
+
+    matches = re.search(regex, template, re.S)
+    each_block = ""
+
+    print('matches', matches)
+
+    if matches:
+        each_block = matches.group(1)
+    else:
+        return template
+
+    content = ""
+    result = template
+
+    for data in data_list:
+        print('data', data)
+        item = each_block
+        if isinstance(data, dict):
+            print('data is dict', data)
+            item = template_replace(data, item)
+            print('item', item)
+        else:
+            print('data is NOT dict', data)
+            item = template_replace({'.': data}, item)
+            print('item', item)
+        content += item + "\n"
+
+    print('content', content)
+    result = re.sub(regex, content, template, flags=re.S)
+    print('each result', result)
+
     return result
 
 
@@ -54,6 +103,7 @@ for dir in copy_dirs:
     os.system(copy_command)
 
 template = {}
+
 # Read template
 with open('./src/templates/index-template.html', 'r') as file:
     template['index'] = file.read()
@@ -148,24 +198,32 @@ html = template['index']
 destination = os.path.join(build_dir, 'index.html')
 content = ""
 
+index_data = {'pages': []}
 for page in pages:
-    print('page metadata - ', page.metadata)
+    # print('page metadata - ', page.metadata)
+    index_data['pages'].append(page.metadata)
+# print('index_data', index_data)
 
-    tags_html = ""
-    if page.metadata.get('tags'):
-        for tag in page.metadata['tags']:
-            tag_template = template['tag']
-            tag_html = tag_template.replace("{{ tag }}", tag)
-            tags_html += tag_html + "\n"
+# for page in pages:
+#     # print('page metadata - ', page.metadata)
+#
+#     tags_html = ""
+#     if page.metadata.get('tags'):
+#         for tag in page.metadata['tags']:
+#             tag_template = template['tag']
+#             tag_html = tag_template.replace("{{ tag }}", tag)
+#             tags_html += tag_html + "\n"
+#
+#     page.metadata['tag_list'] = tags_html
+#
+#     # Replace metadata handles
+#     link_html = template_replace(page.metadata, template['page-link'])
+#     # Add new link to index content
+#     content += link_html + "\n"
 
-    page.metadata['tag_list'] = tags_html
+html = template_replace(index_data, template['index'])
 
-    # Replace metadata handles
-    link_html = template_replace(page.metadata, template['page-link'])
-    # Add new link to index content
-    content += link_html + "\n"
-
-html = html.replace("{{ content }}", content)
+# html = html.replace("{{ content }}", content)
 with open(destination, 'w') as file:
     file.write(html)
 
