@@ -31,9 +31,13 @@
         <section class="container">
             <h1>{{ title }}</h1>
             <section>
-                {{ prev_link }}
+                {{ #if prev_href }}
+                <a href="{{ prev_href }}">← {{ prev_title }}</a>
+                {{ /if prev_href }}
                 <span style="margin: 0 10px;"> | </span>
-                {{ next_link }}
+                {{ #if next_href }}
+                <a href="{{ next_href }}">{{ next_title }} →</a>
+                {{ /if next_href }}
             </section>
             <section>
                 <em>Published: {{ publish_date }}</em>

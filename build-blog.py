@@ -22,15 +22,23 @@ def get_block_regex(key):
 
 
 def fill_template(data_dict, template):
+    print('Filling template')
     keys = re.findall(r"{{\s*(.*?)\s*}}", template)
     result = template
     for key in keys:
+        # print(f'Checking "{key}"')
+        if key == 'content':
+            # Content is special, and will be replaced later
+            # print('skipping content key')
+            continue
 
         if '#if' in key:
+            # print('found IF')
             result = fill_if(key, data_dict, result)
             continue
 
         if '#each' in key:
+            # print('found EACH')
             result = fill_each(key, data_dict, result)
             continue
 
@@ -46,12 +54,18 @@ def get_match(match):
 
 
 def fill_if(key, data_dict, template):
+    # print('fill_if: key', key)
+    # print('fill_if: data', data_dict)
 
     result = template
     condition = key.replace("#if ", "")
     value = data_dict.get(condition)
 
     regex = get_block_regex(key)
+    # print('fill_if: regex', regex)
+
+    # print('fill_if: match')
+    # print('fill_if: before\n', result)
 
     if value:
         result = re.sub(
@@ -61,6 +75,7 @@ def fill_if(key, data_dict, template):
             count=1,
             flags=re.S
         )
+        # print('fill_if: after\n', result)
     else:
         result = re.sub(
             pattern=regex,
@@ -93,7 +108,7 @@ def fill_each(key, data_dict, template):
     content = ""
 
     for v in value:
-        print('v', v)
+        # print('v', v)
         # If not a dict, make it a dict with a dot for a key
         if not isinstance(v, dict):
             v = {'.': v}
@@ -279,31 +294,15 @@ for index, page in enumerate(pages):
     # Prepare other article links
     if index > 0:
         next = pages[index-1]
-        link_metadata = {
-            'href': next.metadata['slug'],
-            'title': next.metadata['title'],
-        }
-        link = template_replace(link_metadata, template['next-link'])
-        page.metadata['next_link'] = link
-    else:
-        # Delete the template handle
-        page.metadata['next_link'] = None
+        page.metadata['next_href'] = str(next.metadata['slug'])
+        page.metadata['next_title'] = str(next.metadata['title'])
 
     if index < len(pages) - 1:
         prev = pages[index+1]
-        link_metadata = {
-            'href': prev.metadata['slug'],
-            'title': prev.metadata['title'],
-        }
-        link = template_replace(link_metadata, template['prev-link'])
-        page.metadata['prev_link'] = link
-    else:
-        # Delete the template handle
-        page.metadata['prev_link'] = None
+        page.metadata['prev_href'] = prev.metadata['slug']
+        page.metadata['prev_title'] = prev.metadata['title']
 
-    # replace the other handles
-    html = template_replace(page.metadata, html)
-    # html = fill_template(page.metadata, html)
+    html = fill_template(page.metadata, html)
 
     # replace the content template handle with the content from the html
     html = html.replace("{{ content }}", page.content)
@@ -325,7 +324,6 @@ for page in pages:
     index_data['pages'].append(page.metadata)
 
 html = fill_template(index_data, template['index'])
-print(html)
 
 with open(destination, 'w') as file:
     file.write(html)
