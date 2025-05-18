@@ -26,19 +26,15 @@ def fill_template(data_dict, template):
     keys = re.findall(r"{{\s*(.*?)\s*}}", template)
     result = template
     for key in keys:
-        # print(f'Checking "{key}"')
         if key == 'content':
             # Content is special, and will be replaced later
-            # print('skipping content key')
             continue
 
         if '#if' in key:
-            # print('found IF')
             result = fill_if(key, data_dict, result)
             continue
 
         if '#each' in key:
-            # print('found EACH')
             result = fill_each(key, data_dict, result)
             continue
 
@@ -54,18 +50,12 @@ def get_match(match):
 
 
 def fill_if(key, data_dict, template):
-    # print('fill_if: key', key)
-    # print('fill_if: data', data_dict)
-
     result = template
+
     condition = key.replace("#if ", "")
     value = data_dict.get(condition)
 
     regex = get_block_regex(key)
-    # print('fill_if: regex', regex)
-
-    # print('fill_if: match')
-    # print('fill_if: before\n', result)
 
     if value:
         result = re.sub(
@@ -75,7 +65,6 @@ def fill_if(key, data_dict, template):
             count=1,
             flags=re.S
         )
-        # print('fill_if: after\n', result)
     else:
         result = re.sub(
             pattern=regex,
@@ -88,11 +77,13 @@ def fill_if(key, data_dict, template):
 
 
 def fill_each(key, data_dict, template):
+    """Fill out the each block"""
     dict_key = key.replace("#each ", "")
     value = data_dict.get(dict_key)
 
     regex = get_block_regex(key)
 
+    # If the value is not a list, something is wrong, just delete everything
     if not isinstance(value, list):
         result = re.sub(
             pattern=regex,
@@ -103,18 +94,21 @@ def fill_each(key, data_dict, template):
         )
         return result
 
+    # Get the contents of the each block, to use as a template
     inner_template = re.search(regex, template, flags=re.S).group(1)
 
     content = ""
 
+    # Loop through values of the list
     for v in value:
-        # print('v', v)
         # If not a dict, make it a dict with a dot for a key
         if not isinstance(v, dict):
             v = {'.': v}
 
+        # Fill the inner template out with the dictionary
         content += fill_template(v, inner_template) + "\n"
 
+    # Replace each block with rendered content
     result = re.sub(
         pattern=regex,
         repl=content,
@@ -245,14 +239,6 @@ with open('./src/templates/index-template.html', 'r') as file:
     template['index'] = file.read()
 with open('./src/templates/page-template.html', 'r') as file:
     template['page'] = file.read()
-with open('./src/templates/page-link.partial.html', 'r') as file:
-    template['page-link'] = file.read()
-with open('./src/templates/next-link.partial.html', 'r') as file:
-    template['next-link'] = file.read()
-with open('./src/templates/prev-link.partial.html', 'r') as file:
-    template['prev-link'] = file.read()
-with open('./src/templates/tag.partial.html', 'r') as file:
-    template['tag'] = file.read()
 
 # A list of pages to save for the index page
 pages = []
