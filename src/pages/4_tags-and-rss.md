@@ -11,6 +11,60 @@ tags:
 
 Hello and welcome back. I plan to make this the final instalment of this python blog series. After which I am free to write about whatever I like, hooray!
 
+## Making my code pretty
+At the moment, my code blocks are boring. Sad boring monotone code blocks. So I'm going to add a little flair with some code styling.
+
+I first considered [Prism.js](https://prismjs.com/), and I gave it a go, but it didn't work instantly, and I decided against sending 18KB of javascript just to do code styling. That's what my build step is for! So I searched for a python option.
+
+And I found it with [Pygments](https://pygments.org/)! A python library that applies styles to code. 
+
+It took a while to get the hang of what it wanted from me, but with the help of this page here: [Moonbooks - How to use Markdown and Pygments in Python to enhance the formatting of your content ?](https://en.moonbooks.org/Articles/How-to-use--Markdown-and-Pygments-in-Python-to-enhance-the-formatting-of-your-content-/) I was able to work it out.
+
+```python
+        # convert content to html
+        content = commonmark.commonmark(raw)
+
++       # Convert code blocks using pygments
++       code_regex = r'<pre><code class="language-(.*?)">(.*?)<\/code><\/pre>'
++       code_blocks = re.findall(code_regex, content, flags=re.S)
++
++
++       for cb in code_blocks:
++           try:
++               lexer = get_lexer_by_name(cb[0])
++               code = HTML.unescape(cb[1])
++               result = highlight(code, lexer, CodeFormatter())
++
++               content = re.sub(
++                   pattern=code_regex,
++                   repl=result.replace("\\", "\\\\"),
++                   string=content,
++                   count=1,
++                   flags=re.S
++               )
++
++           except ClassNotFound:
++               continue
+```
+
+I added the styling step directly after the markdown processing. I find all of the code blocks with regex, looking for the `<pre><code>...</code></pre>` tags. I use capture groups to extract the programming language, and the code itself. 
+
+For each code block found, I use the language name to get the lexer to parse the code content, and un-escape the code content itself. If the language does not have a lexer, it will throw an error, which I catch and just continue. 
+
+Then we run the styling! I mildly extended the default `HtmlFormatter()` from pygments, to wrap the code with a `<code>` tag. 
+
+Once we have our result, I regex replace the contents, making sure to escape any backslashes. 
+
+Now this works, the code blocks get surrounded in spans with classes, but of course I need a style sheet to make anything happen. I played around with having the style sheet generate on build, but I worked out that the sheet doesn't change. So I used the command line API of Pygments to generate the stylesheet, which I placed with the others.
+
+```bash
+pygmentize -S catppuccin-mocha -f html -a .highlight > code.css
+```
+
+I had to choose a theme, and a quick search revealed that catppuccin had a pygments plugin, so I simply had to choose it. Everyone has a theme they like.
+![Catppuccin my beloved](catppuccin-my-beloved.png)
+
+Now, it's not a perfect match to my neovim catppuccin, and I had to edit the css file a little bit, but I think all of my code examples look much better now!
 ## Tags
 So, as I plan to begin writing about other various topics, I thought it would be nice to let my (let's be honest, 0) readers know what kind of content would be in a given article. Maybe some people like general dev talk, but don't care about neovim. Or if I ever dip this blog into politics (more when than if), I'm sure some people would want to avoid that like the plague. I can also imagine writing much smaller articles, basically tweets, that could disappoint people that click though expecting more. 
 
@@ -70,23 +124,23 @@ And to render these blocks, I wrote a each block render function!
 ```python
 def replace_template_each(each_key, data_list, template):
     """replaces a list block"""
-
+	
 	each_start = f"{{{{ #each {each_key} }}}}"
     each_end = f"{{{{ /each {each_key} }}}}"
     regex = fr"{each_start}(.*?){each_end}"
-
+	
     matches = re.search(regex, template, re.S)
     each_block = ""
-
-
+	
+	
     if matches:
         each_block = matches.group(1)
     else:
         return template
-
+	
     content = ""
     result = template
-
+	
     for data in data_list:
         item = each_block
         if isinstance(data, dict):
@@ -94,10 +148,10 @@ def replace_template_each(each_key, data_list, template):
         else:
             item = template_replace({'.': data}, item)
         content += item + "\n"
-
+	
 	# 
     result = re.sub(regex, content, template, flags=re.S)
-
+	
     return result
 
 ```
@@ -339,8 +393,8 @@ So now I can add tags to my markdown files, and they will appear in the link on 
 
 Onto the next!
 
-## CSS
-At the moment, my code blocks are boring. Sad boring monotone code blocks. So I'm going to add a little flair with Prism.js
+## RSS
+The last thing on my agenda for this blog is rss feed capability. 
 
 
 

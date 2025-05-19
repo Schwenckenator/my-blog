@@ -5,6 +5,12 @@ import commonmark
 import frontmatter
 import datetime
 import re
+import html as HTML
+
+from pygments import highlight
+from pygments.lexers import get_lexer_by_name
+from pygments.formatters import HtmlFormatter
+from pygments.util import ClassNotFound
 
 
 class PageData():
@@ -14,6 +20,23 @@ class PageData():
         self.filepath = filepath
         self.metadata = metadata
         self.content = content
+
+
+class CodeFormatter(HtmlFormatter):
+    def wrap(self, source):
+        return self._wrap_code(source)
+
+    def _wrap_code(self, source):
+        # print('wrapping code')
+        # Open code tag
+        yield 0, '<pre><code>'
+        # Give all tokens
+        for i, t in source:
+            # print(i, t)
+            yield i, t
+        # Close code tag
+        yield 0, '</code></pre>'
+        # print('end wrapping code\n')
 
 
 def get_block_regex(key):
@@ -142,76 +165,76 @@ def fill_data(key, data_dict, template):
     )
 
 
-def template_replace(metadata, template):
-    """replaces the template placeholder with metadata"""
-    result = template
-    for key, value in metadata.items():
-        # print('metadata key - ', key, '; value - ', value)
-        if value is None:
-            # print("It's NONE, deleting the handler")
-            result = result.replace(f"{{{{ {key} }}}}", "")
-            continue
-        if isinstance(value, list):
-            # print("It's a list, do nothing")
-            result = replace_template_each(key, value, result)
-            continue
-        if isinstance(value, bool):
-            # print("It's a bool, don't replace anything!", value)
-            continue
-        if isinstance(value, datetime.date):
-            # print("It's a date!", value)
-            value = value.strftime("%d %B %Y")
-        # print('final value', value)
-        result = result.replace(f"{{{{ {key} }}}}", value)
-    return result
+# def template_replace(metadata, template):
+#     """replaces the template placeholder with metadata"""
+#     result = template
+#     for key, value in metadata.items():
+#         # print('metadata key - ', key, '; value - ', value)
+#         if value is None:
+#             # print("It's NONE, deleting the handler")
+#             result = result.replace(f"{{{{ {key} }}}}", "")
+#             continue
+#         if isinstance(value, list):
+#             # print("It's a list, do nothing")
+#             result = replace_template_each(key, value, result)
+#             continue
+#         if isinstance(value, bool):
+#             # print("It's a bool, don't replace anything!", value)
+#             continue
+#         if isinstance(value, datetime.date):
+#             # print("It's a date!", value)
+#             value = value.strftime("%d %B %Y")
+#         # print('final value', value)
+#         result = result.replace(f"{{{{ {key} }}}}", value)
+#     return result
 
 
-def replace_template_each(each_key, data_list, template):
-    """replaces a list block"""
-    print('replace_template_each')
-
-    print('each_key', each_key)
-    # print('data_list', data_list)
-    # print('template', template)
-
-    each_start = f"{{{{ #each {each_key} }}}}"
-    each_end = f"{{{{ /each {each_key} }}}}"
-    regex = fr"{each_start}(.*?){each_end}"
-    print('each_start', each_start)
-    print('each_end', each_end)
-    print('regex', regex)
-
-    matches = re.search(regex, template, re.S)
-    each_block = ""
-
-    print('matches', matches)
-
-    if matches:
-        each_block = matches.group(1)
-    else:
-        return template
-
-    content = ""
-    result = template
-
-    for data in data_list:
-        print('data', data)
-        item = each_block
-        if isinstance(data, dict):
-            print('data is dict', data)
-            item = template_replace(data, item)
-            print('item', item)
-        else:
-            print('data is NOT dict', data)
-            item = template_replace({'.': data}, item)
-            print('item', item)
-        content += item + "\n"
-
-    print('content', content)
-    result = re.sub(regex, content, template, flags=re.S)
-    print('each result', result)
-
-    return result
+# def replace_template_each(each_key, data_list, template):
+#     """replaces a list block"""
+#     print('replace_template_each')
+#
+#     print('each_key', each_key)
+#     # print('data_list', data_list)
+#     # print('template', template)
+#
+#     each_start = f"{{{{ #each {each_key} }}}}"
+#     each_end = f"{{{{ /each {each_key} }}}}"
+#     regex = fr"{each_start}(.*?){each_end}"
+#     print('each_start', each_start)
+#     print('each_end', each_end)
+#     print('regex', regex)
+#
+#     matches = re.search(regex, template, re.S)
+#     each_block = ""
+#
+#     print('matches', matches)
+#
+#     if matches:
+#         each_block = matches.group(1)
+#     else:
+#         return template
+#
+#     content = ""
+#     result = template
+#
+#     for data in data_list:
+#         print('data', data)
+#         item = each_block
+#         if isinstance(data, dict):
+#             print('data is dict', data)
+#             item = template_replace(data, item)
+#             print('item', item)
+#         else:
+#             print('data is NOT dict', data)
+#             item = template_replace({'.': data}, item)
+#             print('item', item)
+#         content += item + "\n"
+#
+#     print('content', content)
+#     result = re.sub(regex, content, template, flags=re.S)
+#     print('each result', result)
+#
+#     return result
 
 
 #######
@@ -254,6 +277,29 @@ for f in glob.iglob(f"{source_dir}/**/*.md"):
 
         # convert content to html
         content = commonmark.commonmark(raw)
+
+        # Convert code blocks using pygments
+        code_regex = r'<pre><code class="language-(.*?)">(.*?)<\/code><\/pre>'
+        code_blocks = re.findall(code_regex, content, flags=re.S)
+
+        print('\n\nChecking file - ', metadata['title'])
+
+        for cb in code_blocks:
+            try:
+                lexer = get_lexer_by_name(cb[0])
+                code = HTML.unescape(cb[1])
+                result = highlight(code, lexer, CodeFormatter())
+
+                content = re.sub(
+                    pattern=code_regex,
+                    repl=result.replace("\\", "\\\\"),
+                    string=content,
+                    count=1,
+                    flags=re.S
+                )
+
+            except ClassNotFound:
+                continue
 
     # if the page is not published, don't include it in the build
     if not metadata['is_published']:
