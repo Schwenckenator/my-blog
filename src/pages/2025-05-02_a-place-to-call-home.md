@@ -1,9 +1,12 @@
 ---
-title: "A place to call Home"
+title: A place to call Home
 publish_date: 2025-05-04
 is_published: true
-slug: 'place-to-call-home'
-description: "Welcome back, I'm still working on my static site generator / blog. This time I'll try and fix my codeblocks, and get a homepage with both of my posts on it done!"
+slug: place-to-call-home
+description: Welcome back, I'm still working on my static site generator / blog. This time I'll try and fix my codeblocks, and get a homepage with both of my posts on it done!
+tags:
+  - python
+  - build-a-blog
 ---
 sina lukin e ni la, sina pona a!
 

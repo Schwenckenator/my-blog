@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+    <channel>
+        <title>Schwenckenator.dev</title>
+        <description>Thoughts on personal projects, neovim, languages, and anything else that crosses my mind</description>
+        <category>Personal blog</category>
+        <link>https://schwenckenator.dev</link>
+        <lastBuildDate>{{ build_date }}</lastBuildDate>
+        {{ #each items }}
+        <item>
+            <title>{{ title }}</title>
+            <description>{{ description }}</description>
+            <link>https://schwenckenator.dev/{{ slug }}</link>
+            <pubDate>{{ publish_date }}</pubDate>
+            <content>{{ article }}</content>
+        </item>
+        {{ /each items }}
+    </channel>
+</rss>

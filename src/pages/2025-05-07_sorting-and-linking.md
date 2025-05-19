@@ -4,6 +4,9 @@ publish_date: 2025-05-07
 is_published: true
 slug: sorting-and-linking
 description: My articles are sorting in the wrong order, and I want to put previous / next links into my pages.
+tags:
+  - python
+  - build-a-blog
 ---
 Welcome back to my series about building this very website!
 

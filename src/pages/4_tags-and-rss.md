@@ -1,9 +1,9 @@
 ---
 title: Tags and Rss
-publish_date: 2025-05-09
+publish_date: 2025-05-20
 is_published: true
-slug: tags-and-rss
-description: 
+slug: css-rss-and-rebuilds
+description: I finished up the main features of my blog build script. I add code highlighting to my code blocks with pygments, completely rebuild my templating, and top it off with tags and an rss feed.
 tags:
   - python
   - build-a-blog
@@ -394,7 +394,69 @@ So now I can add tags to my markdown files, and they will appear in the link on 
 Onto the next!
 
 ## RSS
-The last thing on my agenda for this blog is rss feed capability. 
+The last thing on my agenda for this blog is rss feed capability. It was surprisingly easy! I had a quick look around, and looked at the rss spec, and came up with this template.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+    <channel>
+        <title>Schwenckenator.dev</title>
+        <description>Thoughts on personal projects, neovim, languages, and anything else that crosses my mind</description>
+        <category>Personal blog</category>
+        <link>https://schwenckenator.dev</link>
+        <lastBuildDate>{{ build_date }}</lastBuildDate>
+        {{ #each items }}
+        <item>
+            <title>{{ title }}</title>
+            <description>{{ description }}</description>
+            <link>https://schwenckenator.dev/{{ slug }}</link>
+            <pubDate>{{ publish_date }}</pubDate>
+            <content>{{ article }}</content>
+        </item>
+        {{ /each items }}
+    </channel>
+</rss>
+```
+
+Leveraging the power of my new templating system, I made a little addition to the end of the script, similar to the front page build. 
+
+```python
+# Create RSS file
+rss = template['rss-feed']
+destination = os.path.join(build_dir, 'rss.xml')
+rss_date_format = "%a, %d %b %Y %H:%M:%S %z"
+rss_data = {
+    'build_date': datetime.datetime.now().strftime(rss_date_format),
+    'items': [],
+}
+
+for page in pages:
+    data = page.metadata
+    data['article'] = HTML.escape(page.content)
+    rss_data['items'].append(data)
 
 
+rss = fill_template(rss_data, template['rss-feed'], rss_date_format)
 
+with open(destination, 'w') as file:
+    file.write(rss)
+
+print("finished building rss feed")
+```
+
+All I'm doing is gathering the metadata, and the content into a dictionary, and sending it to my template function. It's so good when things just work. 
+I added a little date formatting optional parameter to the function, to handle RSS dates not being what I was using already. 
+
+And finally, I added a link to the RSS xml file in my header templates, which you should see above!
+
+## What a journey!
+That's it! I'm done building this site for a while. 
+
+Not to mean I won't write anything here anymore. I've found writing down my little python adventures very motivating, and I've been quite consistent with working on it. That said, I'm looking forward to working on a new project.
+
+Now that I have tags, I'll be able to post more random nonsense here too! That might be fun (for me). 
+
+Anyway, if anyone has read this far, thank you!
+
+Until next time, \
+pona tawa sina a! mi tawa.

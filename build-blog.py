@@ -44,7 +44,7 @@ def get_block_regex(key):
     return fr"{{{{\s*{key}\s*}}}}(.*?){{{{\s*/{key[1:]}\s*}}}}"
 
 
-def fill_template(data_dict, template):
+def fill_template(data_dict, template, date_format="%d %B %Y"):
     print('Filling template')
     keys = re.findall(r"{{\s*(.*?)\s*}}", template)
     result = template
@@ -58,10 +58,10 @@ def fill_template(data_dict, template):
             continue
 
         if '#each' in key:
-            result = fill_each(key, data_dict, result)
+            result = fill_each(key, data_dict, result, date_format)
             continue
 
-        result = fill_data(key, data_dict, result)
+        result = fill_data(key, data_dict, result, date_format)
 
     return result
 
@@ -99,7 +99,7 @@ def fill_if(key, data_dict, template):
     return result
 
 
-def fill_each(key, data_dict, template):
+def fill_each(key, data_dict, template, date_format="%d %B %Y"):
     """Fill out the each block"""
     dict_key = key.replace("#each ", "")
     value = data_dict.get(dict_key)
@@ -129,12 +129,12 @@ def fill_each(key, data_dict, template):
             v = {'.': v}
 
         # Fill the inner template out with the dictionary
-        content += fill_template(v, inner_template) + "\n"
+        content += fill_template(v, inner_template, date_format) + "\n"
 
     # Replace each block with rendered content
     result = re.sub(
         pattern=regex,
-        repl=content,
+        repl=content.replace("\\", "\\\\"),
         string=template,
         count=1,
         flags=re.S
@@ -143,7 +143,7 @@ def fill_each(key, data_dict, template):
     return result
 
 
-def fill_data(key, data_dict, template):
+def fill_data(key, data_dict, template, date_format="%d %B %Y"):
     value = data_dict.get(key)
 
     if value is None or isinstance(value, bool) or isinstance(value, list):
@@ -155,11 +155,11 @@ def fill_data(key, data_dict, template):
         )
 
     if isinstance(value, datetime.date):
-        value = value.strftime("%d %B %Y")
+        value = value.strftime(date_format)
 
     return re.sub(
         pattern=fr"{{{{\s*{key}\s*}}}}",
-        repl=str(value),
+        repl=str(value).replace("\\", "\\\\"),
         string=template,
         count=1,
     )
@@ -262,6 +262,8 @@ with open('./src/templates/index-template.html', 'r') as file:
     template['index'] = file.read()
 with open('./src/templates/page-template.html', 'r') as file:
     template['page'] = file.read()
+with open('./src/templates/rss-template.xml', 'r') as file:
+    template['rss-feed'] = file.read()
 
 # A list of pages to save for the index page
 pages = []
@@ -359,5 +361,29 @@ html = fill_template(index_data, template['index'])
 
 with open(destination, 'w') as file:
     file.write(html)
+
+print("index page finished")
+
+# Create RSS file
+rss = template['rss-feed']
+destination = os.path.join(build_dir, 'rss.xml')
+rss_date_format = "%a, %d %b %Y %H:%M:%S %z"
+rss_data = {
+    'build_date': datetime.datetime.now().strftime(rss_date_format),
+    'items': [],
+}
+
+for page in pages:
+    data = page.metadata
+    data['article'] = HTML.escape(page.content)
+    rss_data['items'].append(data)
+
+
+rss = fill_template(rss_data, template['rss-feed'], rss_date_format)
+
+with open(destination, 'w') as file:
+    file.write(rss)
+
+print("finished building rss feed")
 
 print("finished successfully!")
