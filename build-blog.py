@@ -4,6 +4,7 @@ import glob
 import commonmark
 import frontmatter
 import datetime
+from zoneinfo import ZoneInfo
 import re
 import html as HTML
 
@@ -155,8 +156,9 @@ def fill_data(key, data_dict, template, date_format="%d %B %Y"):
         )
 
     if isinstance(value, datetime.date):
-        value = value.strftime(date_format)
-
+        dt = datetime.datetime(value.year, value.month,
+                               value.day, 0, 0, 0, tzinfo=ZoneInfo('Asia/Tokyo'))
+        value = dt.strftime(date_format)
     return re.sub(
         pattern=fr"{{{{\s*{key}\s*}}}}",
         repl=str(value).replace("\\", "\\\\"),
@@ -369,7 +371,7 @@ rss = template['rss-feed']
 destination = os.path.join(build_dir, 'rss.xml')
 rss_date_format = "%a, %d %b %Y %H:%M:%S %z"
 rss_data = {
-    'build_date': datetime.datetime.now().strftime(rss_date_format),
+    'build_date': datetime.datetime.now(tz=ZoneInfo('Asia/Tokyo')).strftime(rss_date_format),
     'items': [],
 }
 

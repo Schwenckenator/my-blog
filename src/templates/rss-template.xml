@@ -6,13 +6,20 @@
         <category>Personal blog</category>
         <link>https://schwenckenator.dev</link>
         <lastBuildDate>{{ build_date }}</lastBuildDate>
+        <atom:link href="https://schwenckenator.dev/rss.xml" rel="self" type="application/rss+xml" />
         {{ #each items }}
         <item>
             <title>{{ title }}</title>
-            <description>{{ description }}</description>
             <link>https://schwenckenator.dev/{{ slug }}</link>
+            <guid>https://schwenckenator.dev/{{ slug }}</guid>
+            <description>
+                {{ description }}
+                &lt;br&gt;
+                &lt;hr&gt;
+                &lt;br&gt;
+                {{ article }}
+            </description>
             <pubDate>{{ publish_date }}</pubDate>
-            <content>{{ article }}</content>
         </item>
         {{ /each items }}
     </channel>
