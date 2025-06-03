@@ -3,7 +3,7 @@ title: brainlife
 publish_date: 2025-06-02
 is_published: true
 slug: brainlife
-description: I made a small esolang, that can replicated Conway's game of life
+description: I made a small esolang, that can replicate Conway's game of life
 tags:
   - js
   - esolang
