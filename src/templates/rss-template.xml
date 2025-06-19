@@ -12,6 +12,7 @@
             <title>{{ title }}</title>
             <link>https://schwenckenator.dev/{{ slug }}</link>
             <guid>https://schwenckenator.dev/{{ slug }}</guid>
+            <pubDate>{{ publish_date }}</pubDate>
             <description>
                 {{ description }}
                 &lt;br&gt;
@@ -19,7 +20,6 @@
                 &lt;br&gt;
                 {{ article }}
             </description>
-            <pubDate>{{ publish_date }}</pubDate>
         </item>
         {{ /each items }}
     </channel>
