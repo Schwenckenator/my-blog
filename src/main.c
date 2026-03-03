@@ -1,0 +1,440 @@
+#include <dirent.h>
+#include <errno.h>
+#include <linux/limits.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+// #!/usr/bin/env python3
+// import os
+// import glob
+// import commonmark
+// import frontmatter
+// import datetime
+// from zoneinfo import ZoneInfo
+// import re
+// import html as HTML
+//
+// from pygments import highlight
+// from pygments.lexers import get_lexer_by_name
+// from pygments.formatters import HtmlFormatter
+// from pygments.util import ClassNotFound
+
+static int walk_directory(const char *dirname);
+static int render_markdown();
+
+// TODO
+// - Walk the directories, gathering information about the templates, pages, and
+// markdown files
+// - Walk the information, building each page and saving to dist folder
+// - Build a `tree` to hold the info?
+
+/*
+ * NOTE: argc is ARG_COUNT
+ * argv[] is ARG_VALUES
+ */
+int main(int argc, char *argv[]) {
+    // ******
+    // * Main
+    // ******
+    char cwd[PATH_MAX];
+    getcwd(cwd, sizeof(cwd));
+    printf("Current cwd: '%s'\n", cwd);
+
+    char site_dir[] = "site";
+    char export_dir[] = "dist";
+
+    printf("Deleting 'dist'\n");
+
+    // Delete current build folder
+    // NOTE: I tried using 'unlink' and 'rmdir' but just using the shell is
+    // easier
+    system("rm -rf dist");
+
+    // Make a new one, with read write permissions
+    mkdir(export_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+    // Walk directories from current
+    walk_directory("./site");
+
+    // Begin walk of 'site' directory
+
+    // Pointer for directory entry
+    // struct dirent *de;
+    //
+    // DIR *dr = opendir(".");
+    //
+    // if (dr == NULL) {
+    //     printf("Could not open directory\n");
+    //     return 0;
+    // }
+    //
+    // while ((de = readdir(dr)) != NULL) {
+    //     switch (de->d_type) {
+    //     case DT_REG:
+    //         printf("%s\n", de->d_name);
+    //         break;
+    //     case DT_DIR:
+    //         printf("%s/\n", de->d_name);
+    //         break;
+    //     case DT_LNK:
+    //         printf("%s@\n", de->d_name);
+    //         break;
+    //     default:
+    //         printf("%s*\n", de->d_name);
+    //     }
+    // }
+    //
+    // closedir(dr);
+    return 0;
+
+    //
+    // for f in glob.iglob(f"{source_dir}/**/*.md"):
+    //     # Open markdown file
+    //     with open(f, 'r') as file:
+    //         # extract frontmatter and raw markdown
+    //         metadata, raw = frontmatter.parse(file.read())
+    //
+    //        # add `/img/` to image urls
+    //        raw = re.sub(r"!\[(.*)\]\((.*)\)", r"![\1](/img/\2)", raw)
+    //
+    //        # convert content to html
+    //        content = commonmark.commonmark(raw)
+    //
+    //        # Convert code blocks using pygments
+    //        code_regex = r'<pre><code
+    //        class="language-(.*?)">(.*?)<\/code><\/pre>' code_blocks =
+    //        re.findall(code_regex, content, flags=re.S)
+    //
+    //        print('\n\nChecking file - ', metadata['title'])
+    //
+    //        for cb in code_blocks:
+    //            try:
+    //                lexer = get_lexer_by_name(cb[0])
+    //                code = HTML.unescape(cb[1])
+    //                result = highlight(code, lexer, CodeFormatter())
+    //
+    //                content = re.sub(
+    //                    pattern=code_regex,
+    //                    repl=result.replace("\\", "\\\\"),
+    //                    string=content,
+    //                    count=1,
+    //                    flags=re.S
+    //                )
+    //
+    //            except ClassNotFound:
+    //                continue
+    //
+    //    # if the page is not published, don't include it in the build
+    //    if not metadata['is_published']:
+    //        continue
+    //
+    //    # Save data in class
+    //    page_data = PageData(f, metadata, content)
+    //    # Append to pages list
+    //    pages.append(page_data)
+    //
+    // # Sort the pages by `publish_date`
+    // pages.sort(key=lambda p: p.metadata['publish_date'], reverse=True)
+    //
+    // for index, page in enumerate(pages):
+    //     # Create pathname for build dir
+    //     slug = page.metadata['slug'] or os.path.splitext(
+    //         os.path.basename(page.filepath))[0]
+    //
+    //    destination = os.path.join(build_dir, slug + '.html')
+    //
+    //    # copy template to new variable
+    //    html = template['page']
+    //
+    //    # Prepare other article links
+    //    if index > 0:
+    //        next = pages[index-1]
+    //        page.metadata['next_href'] = str(next.metadata['slug'])
+    //        page.metadata['next_title'] = str(next.metadata['title'])
+    //
+    //    if index < len(pages) - 1:
+    //        prev = pages[index+1]
+    //        page.metadata['prev_href'] = prev.metadata['slug']
+    //        page.metadata['prev_title'] = prev.metadata['title']
+    //
+    //    html = fill_template(page.metadata, html)
+    //
+    //    # replace the content template handle with the content from the html
+    //    html = html.replace("{{ content }}", page.content)
+    //
+    //    with open(destination, 'w') as file:
+    //        # write file
+    //        file.write(html)
+    //
+    //    print(f"file written to {destination}")
+    //
+    //
+    // # Create index page
+    // html = template['index']
+    // destination = os.path.join(build_dir, 'index.html')
+    // content = ""
+    //
+    // index_data = {'pages': []}
+    // for page in pages:
+    //     index_data['pages'].append(page.metadata)
+    //
+    // html = fill_template(index_data, template['index'])
+    //
+    // with open(destination, 'w') as file:
+    //     file.write(html)
+    //
+    // print("index page finished")
+    //
+    // # Create RSS file
+    // rss = template['rss-feed']
+    // destination = os.path.join(build_dir, 'rss.xml')
+    // rss_date_format = "%a, %d %b %Y %H:%M:%S %z"
+    // rss_data = {
+    //     'build_date':
+    //     datetime.datetime.now(tz=ZoneInfo('Asia/Tokyo')).strftime(rss_date_format),
+    //     'items': [],
+    // }
+    //
+    // for page in pages:
+    //     data = page.metadata
+    //     data['article'] = HTML.escape(page.content)
+    //     rss_data['items'].append(data)
+    //
+    //
+    // rss = fill_template(rss_data, template['rss-feed'], rss_date_format)
+    //
+    // with open(destination, 'w') as file:
+    //     file.write(rss)
+    //
+    // print("finished building rss feed")
+    //
+    // print("finished successfully!")
+}
+// class PageData():
+//     """A data class to hold page data"""
+//
+//    def __init__(self, filepath, metadata, content):
+//        self.filepath = filepath
+//        self.metadata = metadata
+//        self.content = content
+//
+//
+// class CodeFormatter(HtmlFormatter):
+//     def wrap(self, source):
+//         return self._wrap_code(source)
+//
+//    def _wrap_code(self, source):
+//        # print('wrapping code')
+//        # Open code tag
+//        yield 0, '<pre><code>'
+//        # Give all tokens
+//        for i, t in source:
+//            # print(i, t)
+//            yield i, t
+//        # Close code tag
+//        yield 0, '</code></pre>'
+//        # print('end wrapping code\n')
+//
+//
+// def get_block_regex(key):
+//     """Returns regex that will match the block, and capture the
+//     contents""" return
+//     fr"{{{{\s*{key}\s*}}}}(.*?){{{{\s*/{key[1:]}\s*}}}}"
+//
+//
+// def fill_template(data_dict, template, date_format="%d %B %Y"):
+//     print('Filling template')
+//     keys = re.findall(r"{{\s*(.*?)\s*}}", template)
+//     result = template
+//     for key in keys:
+//         if key == 'content':
+//             # Content is special, and will be replaced later
+//             continue
+//
+//        if '#if' in key:
+//            result = fill_if(key, data_dict, result)
+//            continue
+//
+//        if '#each' in key:
+//            result = fill_each(key, data_dict, result, date_format)
+//            continue
+//
+//        result = fill_data(key, data_dict, result, date_format)
+//
+//    return result
+//
+//
+// def get_match(match):
+//     if match.group(1):
+//         return match.group(1)
+//     return ""
+//
+//
+// def fill_if(key, data_dict, template):
+//     result = template
+//
+//    condition = key.replace("#if ", "")
+//    value = data_dict.get(condition)
+//
+//    regex = get_block_regex(key)
+//
+//    if value:
+//        result = re.sub(
+//            pattern=regex,
+//            repl=get_match,
+//            string=template,
+//            count=1,
+//            flags=re.S
+//        )
+//    else:
+//        result = re.sub(
+//            pattern=regex,
+//            repl="",
+//            string=template,
+//            count=1,
+//            flags=re.S
+//        )
+//    return result
+//
+//
+// def fill_each(key, data_dict, template, date_format="%d %B %Y"):
+//     """Fill out the each block"""
+//     dict_key = key.replace("#each ", "")
+//     value = data_dict.get(dict_key)
+//
+//    regex = get_block_regex(key)
+//
+//    # If the value is not a list, something is wrong, just delete
+//    everything if not isinstance(value, list):
+//        result = re.sub(
+//            pattern=regex,
+//            repl="",
+//            string=template,
+//            count=1,
+//            flags=re.S
+//        )
+//        return result
+//
+//    # Get the contents of the each block, to use as a template
+//    inner_template = re.search(regex, template, flags=re.S).group(1)
+//
+//    content = ""
+//
+//    # Loop through values of the list
+//    for v in value:
+//        # If not a dict, make it a dict with a dot for a key
+//        if not isinstance(v, dict):
+//            v = {'.': v}
+//
+//        # Fill the inner template out with the dictionary
+//        content += fill_template(v, inner_template, date_format) + "\n"
+//
+//    # Replace each block with rendered content
+//    result = re.sub(
+//        pattern=regex,
+//        repl=content.replace("\\", "\\\\"),
+//        string=template,
+//        count=1,
+//        flags=re.S
+//    )
+//
+//    return result
+//
+//
+// def fill_data(key, data_dict, template, date_format="%d %B %Y"):
+//     value = data_dict.get(key)
+//
+//    if value is None or isinstance(value, bool) or isinstance(value,
+//    list):
+//        return re.sub(
+//            pattern=fr"{{{{\s*{key}\s*}}}}",
+//            repl="",
+//            string=template,
+//            count=1,
+//        )
+//
+//    if isinstance(value, datetime.date):
+//        dt = datetime.datetime(value.year, value.month,
+//                               value.day, 0, 0, 0,
+//                               tzinfo=ZoneInfo('Asia/Tokyo'))
+//        value = dt.strftime(date_format)
+//    return re.sub(
+//        pattern=fr"{{{{\s*{key}\s*}}}}",
+//        repl=str(value).replace("\\", "\\\\"),
+//        string=template,
+//        count=1,
+//    )
+//
+
+static int walk_directory(const char *dirname) {
+    char buffer[PATH_MAX + 2];
+    char *p = buffer;
+    char *end = &buffer[PATH_MAX];
+
+    // Copy directory name to buffer
+    const char *src = dirname;
+    // NOTE: Can't just `strcpy` the string, because the position of the
+    // 'p' pointer is important later
+    while (p < end && *src != '\0') {
+        *p++ = *src++;
+    }
+    *p = '\0';
+
+    // Open the directory
+    DIR *dir = opendir(dirname);
+    if (!dir) {
+        // Could not open directory
+        fprintf(stderr, "Cannot open %s (%s)\n", dirname, strerror(errno));
+
+        // Return FAILURE
+        return 0;
+    }
+
+    // Print all files and sub-directories within the directory
+    struct dirent *ent;
+    while ((ent = readdir(dir)) != NULL) {
+        // Creating a new pointer starting at the 'p' pointer
+        char *q = p;
+        char c;
+
+        // Get final character of directory name
+        if (buffer < q) {
+            c = q[-1];
+        } else {
+            c = ':';
+        }
+
+        // Append Directory separator if not already there
+        if (c != ':' && c != '/' && c != '\\') {
+            *q++ = '/';
+        }
+
+        // Append file name
+        src = ent->d_name;
+        while (q < end && *src != '\0') {
+            *q++ = *src++;
+        }
+        *q = '\0';
+
+        switch (ent->d_type) {
+        case DT_REG:
+        case DT_LNK:
+            printf("%s\n", buffer);
+            break;
+        case DT_DIR:
+            if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..")) {
+                // printf("Walk Dir: %s\n", buffer);
+                walk_directory(buffer);
+            }
+        }
+    }
+
+    closedir(dir);
+    // SUCCESS
+    return 1;
+}
