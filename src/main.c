@@ -9,6 +9,15 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+typedef struct {
+    char *title;
+    char *publish_date;
+    char *is_published;
+    char *slug;
+    char *description;
+    char *tags[];
+} BlogPage;
+
 // #!/usr/bin/env python3
 // import os
 // import glob
@@ -32,6 +41,14 @@ static int render_markdown();
 // markdown files
 // - Walk the information, building each page and saving to dist folder
 // - Build a `tree` to hold the info?
+
+// I need:
+// - A list of blog pages, struct BlogPage
+//
+
+// TODO: Make this extendable
+BlogPage blog_pages[16];
+int blog_page_count = 0;
 
 /*
  * NOTE: argc is ARG_COUNT
@@ -60,6 +77,11 @@ int main(int argc, char *argv[]) {
 
     // Walk directories from current
     walk_directory("./site");
+
+    printf("Printing found blog pages");
+    for (int i = 0; i < blog_page_count; i++) {
+        printf("%s\n", blog_pages[i].title);
+    }
 
     // Begin walk of 'site' directory
 
@@ -376,6 +398,10 @@ static int walk_directory(const char *dirname) {
     char *p = buffer;
     char *end = &buffer[PATH_MAX];
 
+    printf("Walking Dir: '%s'\n", dirname);
+    bool is_blog_dir = strcmp(dirname, "./site/blog") == 0;
+    printf("Is blog dir? %b\n", is_blog_dir);
+
     // Copy directory name to buffer
     const char *src = dirname;
     // NOTE: Can't just `strcpy` the string, because the position of the
@@ -425,6 +451,17 @@ static int walk_directory(const char *dirname) {
         case DT_REG:
         case DT_LNK:
             printf("%s\n", buffer);
+            if (is_blog_dir) {
+                // Init pointer
+                char *title = malloc(sizeof(char) * strlen(buffer));
+
+                // Copy String
+                strcpy(title, buffer);
+                printf("New title: '%s'\n", title);
+
+                // Assign pointer to struct
+                blog_pages[blog_page_count++].title = title;
+            }
             break;
         case DT_DIR:
             if (strcmp(ent->d_name, ".") != 0 && strcmp(ent->d_name, "..")) {
