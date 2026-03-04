@@ -2,14 +2,17 @@
 #include <errno.h>
 #include <linux/limits.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <yaml.h>
 
 typedef struct {
+    char *content;
     char *title;
     char *publish_date;
     char *is_published;
@@ -33,7 +36,13 @@ typedef struct {
 // from pygments.formatters import HtmlFormatter
 // from pygments.util import ClassNotFound
 
+/** Gets the size in bytes */
+static size_t get_file_size(const char *filename);
+
+/** Read the full contents of a file into a buffer and return it */
+static char *read_file(const char *filename);
 static int walk_directory(const char *dirname);
+static bool read_pagedata(const char *filepath, BlogPage *page);
 static int render_markdown();
 
 // TODO
@@ -452,15 +461,8 @@ static int walk_directory(const char *dirname) {
         case DT_LNK:
             printf("%s\n", buffer);
             if (is_blog_dir) {
-                // Init pointer
-                char *title = malloc(sizeof(char) * strlen(buffer));
-
-                // Copy String
-                strcpy(title, buffer);
-                printf("New title: '%s'\n", title);
-
-                // Assign pointer to struct
-                blog_pages[blog_page_count++].title = title;
+                read_pagedata(buffer, &blog_pages[blog_page_count]);
+                ++blog_page_count;
             }
             break;
         case DT_DIR:
@@ -474,4 +476,65 @@ static int walk_directory(const char *dirname) {
     closedir(dir);
     // SUCCESS
     return 1;
+}
+
+static bool read_pagedata(const char *filename, BlogPage *page) {
+    char *contents = read_file(filename);
+
+    // Copy title for now
+    char *title = malloc(sizeof(char) * strlen(filename));
+    strcpy(title, filename);
+    page->title = title;
+
+    // Success!
+    return true;
+}
+
+static size_t get_file_size(const char *filename) {
+    struct stat sb;
+    if (stat(filename, &sb) != 0) {
+        fprintf(stderr, "'stat' failed for '%s': %s", filename,
+                strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+    return sb.st_size;
+}
+
+static char *read_file(const char *filename) {
+    size_t size = 0;
+    char *contents;
+
+    size = get_file_size(filename);
+    contents = malloc(size + 1);
+
+    if (!contents) {
+        fprintf(stderr, "Not enough memory. Attempted to allocate %zu bytes.\n",
+                size);
+        return false;
+    }
+
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        fprintf(stderr, "Failed to open file '%s': %s\n", filename,
+                strerror(errno));
+        // FAILED
+        return false;
+    }
+
+    size_t bytes_read = fread(contents, sizeof(char), size, file);
+    if (bytes_read != size) {
+        fprintf(stderr,
+                "Short read of '%s': Expected %zu bytes but got %zu: %s\n",
+                filename, size, bytes_read, strerror(errno));
+        return false;
+    }
+
+    int status = fclose(file);
+    if (status != 0) {
+        fprintf(stderr, "Failed to close file '%s': %s\n", filename,
+                strerror(errno));
+        return false;
+    }
+
+    return contents;
 }
