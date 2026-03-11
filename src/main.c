@@ -21,6 +21,11 @@ typedef struct {
     char *tags[];
 } BlogPage;
 
+typedef struct {
+    char *content;
+    char *slug;
+} Page;
+
 // #!/usr/bin/env python3
 // import os
 // import glob
@@ -43,6 +48,7 @@ static size_t get_file_size(const char *filename);
 static char *read_file(const char *filename);
 static int walk_directory(const char *dirname);
 static bool read_pagedata(const char *filepath, BlogPage *page);
+static bool extract_blogpage_metadata(char *contents, BlogPage *page);
 static int render_markdown();
 
 // TODO
@@ -85,6 +91,7 @@ int main(int argc, char *argv[]) {
     mkdir(export_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
     // Walk directories from current
+    printf("### Walking directories");
     walk_directory("./site");
 
     printf("Printing found blog pages");
@@ -461,8 +468,18 @@ static int walk_directory(const char *dirname) {
         case DT_LNK:
             printf("%s\n", buffer);
             if (is_blog_dir) {
-                read_pagedata(buffer, &blog_pages[blog_page_count]);
-                ++blog_page_count;
+                // Is markdown file?
+                // Read through all characters of the buffer, check if the last
+                // three are `.md`
+                int len = strlen(buffer);
+                if (len > 3 &&                //
+                    buffer[len - 3] == '.' && //
+                    buffer[len - 2] == 'm' && //
+                    buffer[len - 1] == 'd'    //
+                ) {
+                    read_pagedata(buffer, &blog_pages[blog_page_count]);
+                    ++blog_page_count;
+                }
             }
             break;
         case DT_DIR:
@@ -479,12 +496,27 @@ static int walk_directory(const char *dirname) {
 }
 
 static bool read_pagedata(const char *filename, BlogPage *page) {
+    printf("Reading file: %s\n", filename);
     char *contents = read_file(filename);
 
+    printf("Extracting Frontmatter from: %s\n", filename);
+    if (!extract_blogpage_metadata(contents, page)) {
+        fprintf(stderr, "Failed to extract page frontmatter: %s\n",
+                strerror(errno));
+    }
+
+    printf("Extracted Frontmatter\n");
+    printf("\tTitle: %s\n", page->title);
+    printf("\tDescription: %s\n", page->description);
+    printf("\tIs Published: %s\n", page->is_published);
+    printf("\tPublish Date: %s\n", page->publish_date);
+    printf("\tSlug: %s\n", page->slug);
+    // printf("\tTitle: %s", page->slug);
+
     // Copy title for now
-    char *title = malloc(sizeof(char) * strlen(filename));
-    strcpy(title, filename);
-    page->title = title;
+    // char *title = malloc(sizeof(char) * strlen(filename));
+    // strcpy(title, filename);
+    // page->title = title;
 
     // Success!
     return true;
@@ -538,3 +570,151 @@ static char *read_file(const char *filename) {
 
     return contents;
 }
+
+static bool is_alpha(char c) {
+    return (c >= 'a' && c <= 'z') || // format
+           (c >= 'A' && c <= 'Z') || // blocking comment
+           c == '_';
+}
+
+static bool extract_blogpage_metadata(char *contents, BlogPage *page) {
+    // NOTE:
+    // Frontmatter must be the first thing in the file
+    // Frontmatter starts with three hyphens `---`
+    // Frontmatter has `key: value` pairs
+    // Frontmatter ends with three hyphens `---`
+    // This parser will support bool, strings, and arrays of strings only
+
+    // Prepare scanner to read content
+    char *start = contents;
+    char *current = contents;
+
+    printf("Extracting Frontmatter\n");
+
+    // Check if the frontmatter is at the start of the file
+    // the first three characters need to be '---' with a newline
+    bool in_frontmatter = true;
+    for (int i = 0; i < 3; i++) {
+        if (*current != '-') {
+            in_frontmatter = false;
+            break;
+        }
+        // Advance pointer
+        current++;
+    }
+    // After three hyphens, we need a newline
+    if (*current != '\n') {
+        in_frontmatter = false;
+    }
+
+    if (!in_frontmatter) {
+        printf("Frontmatter missing or malformed\n");
+        // Frontmatter is missing or malformed, bail
+        return false;
+    }
+
+    bool is_key = true;
+
+    char key[4096];
+    char value[4096];
+
+    // Start reading the frontmatter
+    printf("Reading Chars...\n");
+    do {
+        start = current;
+        // Read key
+        current++;
+        char c = current[-1];
+        printf("%c", c);
+
+        switch (c) {
+        case '-':
+            if (*current == '-' && current[1] == '-') {
+                in_frontmatter = false;
+            } else {
+                // An array value?
+                if (*current == ' ')
+                    // Skip space
+                    current++;
+            }
+            break;
+        case ':':
+            // Split between key and value
+            is_key = false;
+            if (*current == ' ')
+                current++;
+            break;
+        case '\n':
+            is_key = true;
+            break;
+        default:
+            // Turn whatever this is into a string
+            if (is_key) {
+                // Copy bytes into key variable until a ':' is hit
+                while (*current != ':' && *current != '\n' &&
+                       *current != '\0') {
+                    printf("%c", *current);
+                    current++;
+                }
+                strlcpy(key, start, (int)(current - start) + 1);
+                printf("\nFOUND Key: '%s'\n", key);
+            } else {
+                // Copy bytes into value until a newline is hit
+                while (*current != '\n' && *current != '\0') {
+
+                    printf("%c", *current);
+                    current++;
+                }
+                strlcpy(value, start, (int)(current - start) + 1);
+
+                printf("\nFOUND Value: '%s'\n", value);
+
+                // Now there should be a key and a value,
+                // Attempt to put it into the struct
+
+                if (strcmp(key, "title") == 0) {
+                    char *title = malloc(sizeof(char) * strlen(value));
+                    strcpy(title, value);
+                    page->title = title;
+                } else if (strcmp(key, "publish_date") == 0) {
+                    char *publish_date = malloc(sizeof(char) * strlen(value));
+                    strcpy(publish_date, value);
+                    page->publish_date = publish_date;
+                } else if (strcmp(key, "is_published") == 0) {
+                    char *is_published = malloc(sizeof(char) * strlen(value));
+                    strcpy(is_published, value);
+                    page->is_published = is_published;
+                } else if (strcmp(key, "slug") == 0) {
+                    char *slug = malloc(sizeof(char) * strlen(value));
+                    strcpy(slug, value);
+                    page->slug = slug;
+                } else if (strcmp(key, "description") == 0) {
+                    char *description = malloc(sizeof(char) * strlen(value));
+                    strcpy(description, value);
+                    page->description = description;
+                } else if (strcmp(key, "tags") == 0) {
+                    printf("CANT DEAL WITH TAGS YET\n");
+                    // char *publish_date = malloc(sizeof(char) *
+                    // strlen(value)); page.publish_date = publish_date;
+                }
+            }
+        }
+
+    } while (in_frontmatter);
+
+    // Success!
+    return true;
+}
+
+/*
+---
+title: New year, same me?
+publish_date: 2026-01-16
+is_published: true
+slug: 2026-new-year
+description: My new years resolution for 2026
+tags:
+  - new-years-resolution
+  - personal
+---
+*/
