@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="color-scheme" content="light dark">
+	<meta name="fediverse:creator" content="@Schwenckenator@aus.social">
+	<link rel="stylesheet" href="/css/pico.jade.min.css">
+	<link rel="stylesheet" href="/css/index.css">
+	<link rel="stylesheet" href="/css/code.css">
+	<title>Schwenckenator.dev</title>
+</head>
+
+<body>
+	<header>
+		<hgroup class="container">
+			<h4>
+				Schwenckenator.dev
+			</h4>
+			<p>
+				Thoughts on personal projects, neovim, languages, and anything else that crosses my mind
+			</p>
+		</hgroup>
+		<nav class="container">
+			<ul class="short-li">
+				<li><a href="/" class="secondary">Home</a></li>
+				<li><a href="https://github.com/Schwenckenator/my-blog" class="secondary">Repo</a></li>
+				<li><a href="/rss.xml" class="secondary">RSS</a></li>
+			</ul>
+		</nav>
+	</header>
+	<main>
+		<section class="container">
+	<h1>Introducing FloatNote.nvim</h1>
+	<p>
+				<code>#neovim</code>
+		
+		<code>#personal</code>
+		
+	</p>
+	<section>
+				<a href="i-got-stuck">← I got stuck</a>
+				<span style="margin: 0 10px;"> | </span>
+				<a href="change-is-coming">Change... is coming →</a>
+			</section>
+	<section>
+		<em>Published: 18 February 2026</em>
+	</section>
+	<hr>
+	<h2>FloatNote!</h2>
+<p>I have made a tiny plugin, and released it on codeberg. Here it is!</p>
+<p><a href="https://codeberg.org/Schwenckenator/floatnote.nvim">floatnote.nvim</a></p>
+<h2>What does it do?</h2>
+<p>Very simply, it allows you to open a file in a floating window, write down some quick notes, and have
+that file auto save, and re-open when you open the window in the same project (more specifially, the <code>cwd</code>).</p>
+<p>You use the command <code>:FloatNote</code> to open and close the window, but <kbd>Esc</kbd> in normal mode will
+also close the window, and automatically save the file.</p>
+<p>No more opening up a scratch buffer, finding somewhere to save it without messing with <code>.gitignore</code>!</p>
+<h2>Why should I use it?</h2>
+<p>You almost definitely shouldn't.</p>
+<p>Now that's a weird thing to say from someone spruiking about making a plugin. But I would suggest,
+for a plugin this simple, this is something anyone could, <em>and should</em>, write for themselves.</p>
+<p>It is incredibly easy to start writing Neovim plugins. Because it's exactly the same as writing your
+own config, just with code that other people can use too. Users of <em>other editors</em>, unfortunately don't
+have such an easy time writing custom plugins. It's precisely because Neovim uses Lua (fantastic language btw)
+and the configuration language is the same as writing plugins, that I would encourage every developer
+that uses Neovim to write some plugins and share them.</p>
+<h2>Ways to improve FloatNote?</h2>
+<p>There are so many things I could do. I could add configurable settings, I could make it save notes
+based on git repo, or git branch. But I probably won't do those, at least they aren't a priority.</p>
+<p>One thing I am curious about though, is attaching notes to files in the project using virtual text.
+Sometimes during my work, I want a special note just for me, but writing a comment will change the code
+for everyone. So If I could have parts of this global note, displaying virtual text in the code, I think
+that would be pretty cool.</p>
+<p>Anyway, that's all for this post. Have a dig through my code! It's probably awful, so feel free to reach
+out on my socials and tell me how to improve it!</p>
+</section>
+	</main>
+	<footer class="container">
+		<div>
+			Find me elsewhere!
+		</div>
+		<section>
+			<nav>
+				<ul>
+					<li><a href="https://github.com/Schwenckenator/">GitHub</a></li>
+					/
+					<li><a href="https://bsky.app/profile/schwenckenator.bsky.social">Bluesky</a></li>
+					/
+					<li><a rel="me" href="https://aus.social/@Schwenckenator">Mastodon</a></li>
+				</ul>
+			</nav>
+		</section>
+	</footer>
+</body>
+
+</html>

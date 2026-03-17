@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import pprint as pp
 import os
 import glob
 import commonmark
@@ -23,9 +22,6 @@ class PageData:
         self.metadata = metadata
         self.content = content
 
-    def __str__(self):
-        return f"{{ filepath: '{self.filepath}, metadata: '{self.metadata}'}}"
-
 
 class CodeFormatter(HtmlFormatter):
     def wrap(self, source):
@@ -44,19 +40,12 @@ class CodeFormatter(HtmlFormatter):
         # print('end wrapping code\n')
 
 
-def get_key_regex(key):
-    """Returns regex that will match a key"""
-    return rf"{{{{\s*{key}\s*}}}}\n*"
-
-
 def get_block_regex(key):
     """Returns regex that will match the block, and capture the contents"""
-    return rf"{{{{\s*{key}\s*}}}}(.*?){{{{\s*/{key[1:]}\s*}}}}"
+    return rf"{{{{\s*{key}\s*}}}}\n*(.*?){{{{\s*/{key[1:]}\s*}}}}\n*"
 
 
 def fill_template(data_dict, template, date_format="%d %B %Y"):
-    print("Filling template with data")
-    pp.pprint(data_dict)
     keys = re.findall(r"{{\s*(.*?)\s*}}", template)
     result = template
     for key in keys:
@@ -143,7 +132,7 @@ def fill_data(key, data_dict, template, date_format="%d %B %Y"):
 
     if value is None or isinstance(value, bool) or isinstance(value, list):
         return re.sub(
-            pattern=rf"{{{{\s*{key}\s*}}}}",
+            pattern=rf"{{{{\s*{key}\s*}}}}\n*",
             repl="",
             string=template,
             count=1,
@@ -155,170 +144,11 @@ def fill_data(key, data_dict, template, date_format="%d %B %Y"):
         )
         value = dt.strftime(date_format)
     return re.sub(
-        pattern=rf"{{{{\s*{key}\s*}}}}",
+        pattern=rf"{{{{\s*{key}\s*}}}}\n*",
         repl=str(value).replace("\\", "\\\\"),
         string=template,
         count=1,
     )
-
-
-def load_file(path):
-    print(f"Loading '{path}'")
-    dir = path.rsplit("/", 1)[0]
-    # Open file
-    with open(path, "r") as file:
-        is_markdown = path.rsplit(".", 1)[1] == "md"
-
-        if is_markdown:
-            # extract frontmatter and raw markdown
-            metadata, raw = frontmatter.parse(file.read())
-
-            # add `/img/` to image urls
-            raw = re.sub(r"!\[(.*)\]\((.*)\)", r"![\1](/img/\2)", raw)
-
-            # convert content to html
-            content = commonmark.commonmark(raw)
-
-            # Convert code blocks using pygments
-            code_regex = r'<pre><code class="language-(.*?)">(.*?)<\/code><\/pre>'
-            code_blocks = re.findall(code_regex, content, flags=re.S)
-
-            print("\n\nChecking file - ", metadata["title"])
-
-            for cb in code_blocks:
-                try:
-                    lexer = get_lexer_by_name(cb[0])
-                    code = HTML.unescape(cb[1])
-                    result = highlight(code, lexer, CodeFormatter())
-
-                    content = re.sub(
-                        pattern=code_regex,
-                        repl=result.replace("\\", "\\\\"),
-                        string=content,
-                        count=1,
-                        flags=re.S,
-                    )
-
-                except ClassNotFound:
-                    continue
-
-            # if the page is not published, don't include it in the build
-            if not metadata["is_published"]:
-                return
-        else:
-            content = file.read()
-            metadata = {}
-
-        # Save data in class
-        page_data = PageData(path, metadata, content)
-
-        # Strip the root dir from the site data directory
-        site_dir = dir.replace(source_dir + "/", "").replace(source_dir, ".")
-
-        # Append to list
-        site_data[site_dir].append(page_data)
-
-
-def render_file(path, dir):
-    print(f"{path} is text!")
-    site_dir = dir.replace(source_dir + "/", "").replace(source_dir, ".")
-
-    # Get page data
-    page = None
-    for p in site_data[site_dir]:
-        if p.filepath == path:
-            page = p
-            break
-
-    if not page:
-        print("ERROR: Page data is None")
-        return
-
-    template_paths = find_templates(dir)
-    html = "{{ content }}"  # Seed for replacer
-    content = page.content
-
-    # Iteratively apply templates from root -> branch
-    content_regex = get_key_regex("content")
-    for t_path in template_paths:
-        template = templates[t_path]
-
-        # Fill keys
-        html = fill_template(site_data, html)
-
-        # Replace content
-        html = re.sub(pattern=content_regex, repl=template, string=html)
-
-    # Add page content to html
-    # Fill keys
-    html = fill_template(site_data, html)
-
-    # Replace content
-    print(html)
-    html = re.sub(pattern=content_regex, repl=content, string=html)
-
-    # destination = path.replace(source_dir, build_dir)
-    slug = (
-        page.metadata.get("slug")
-        or os.path.splitext(os.path.basename(page.filepath))[0]
-    )
-
-    destination = os.path.join(build_dir, slug + ".html")
-
-    with open(destination, "w") as file:
-        file.write(html)
-
-
-def handle_other_file(path):
-    new_path = path.replace(source_dir, build_dir, 1)
-    print(f"Copying file '{path}' to '{new_path}'")
-
-    # Copy file directly to new directory
-    copy_command = f'cp "{path}" "{new_path}"'
-    os.system(copy_command)
-
-
-def find_templates(dir):
-    template_paths = []
-    d = dir
-    while d:
-        if html_template_name in filetree[d]:
-            template_paths.append(d + "/" + html_template_name)
-        if "/" not in d:
-            break
-        # Remove the last slash and keep the rest
-        d = d.rsplit("/", 1)[0]
-
-    # Go from root -> branch
-    template_paths.reverse()
-    print("Found templates: ", template_paths)
-
-    return template_paths
-
-
-def decorate_code_blocks(content):
-    # Convert code blocks using pygments
-    code_regex = r'<pre><code class="language-(.*?)">(.*?)<\/code><\/pre>'
-    code_blocks = re.findall(code_regex, content, flags=re.S)
-
-    for cb in code_blocks:
-        try:
-            lexer = get_lexer_by_name(cb[0])
-            code = HTML.unescape(cb[1])
-            result = highlight(code, lexer, CodeFormatter())
-
-            content = re.sub(
-                pattern=code_regex,
-                repl=result.replace("\\", "\\\\"),
-                string=content,
-                count=1,
-                flags=re.S,
-            )
-
-        except ClassNotFound:
-            continue
-
-    return content
 
 
 #######
@@ -328,83 +158,40 @@ def decorate_code_blocks(content):
 source_dir = "site"
 build_dir = "dist"
 
-html_template_name = "template.html"
-rss_template = "rss-template.xml"
-template_filenames = [html_template_name, rss_template]
+# Delete current build folder
+os.system(f"rm -rf {build_dir}")
+# Make a new one
+os.mkdir(build_dir)
+os.mkdir(f"{build_dir}/blog")
 
-# Dictionary<path -> template contents>
+# copy css and img directories to build
+copy_dirs = ["css", "img", "js"]
+for dir in copy_dirs:
+    copy_command = f'cp -r "./{source_dir}/{dir}" "./{build_dir}/{dir}"'
+    os.system(copy_command)
+
 templates = {}
 
-site_data = {}
-
-# Delete current build folder
-os.system("rm -rf dist")
-
-# Dictionary<Directory -> filepath array>
-filetree = {}
-
-# Walk the directories
-for root, dirs, files in os.walk(source_dir):
-    filetree[root] = []
-    site_dir = root.replace(source_dir + "/", "").replace(source_dir, ".")
-    site_data[site_dir] = []
-
-    for name in files:
-        filetree[root].append(name)
-        path = f"{root}/{name}"
-        ext = name.rsplit(".", 1)[1]
-        if name == html_template_name:
-            # Load template
-            with open(path, "r") as file:
-                templates[path] = file.read()
-        elif ext == "md" or ext == "html":
-            load_file(path)
-
-print(templates.keys())
-
-print("Filetree")
-# pp.pprint(filetree)
-# pp.pprint(site_data)
-
-for key in site_data:
-    for page in site_data[key]:
-        print(f"Page: '{page.filepath}', '{page.metadata.get("title")}'")
-
-# Walk through the listed files
-
-for dir in filetree:
-    print(f"Checking dir '{dir}'")
-
-    # Create directory in build folder
-    new_dir = dir.replace(source_dir, build_dir, 1)
-    os.mkdir(new_dir)
-    print(f"Created directory '{new_dir}'")
-
-    for filename in filetree[dir]:
-        # Abort if this is a template file
-        if filename in template_filenames:
-            print(f"'{filename}' is a template filename, skipping...")
-            continue
-
-        name = dir + "/" + filename
-        print(f"Checking file '{name}'")
-        extension = filename.rsplit(".", 1)[1]
-        match (extension):
-            case "md" | "html":
-                render_file(name, dir)
-            case _:
-                handle_other_file(name)
+for path in glob.iglob(f"{source_dir}/**/template.html", recursive=True):
+    dir = path.rsplit("/", 1)[0]
+    print("path", path, dir)
+    with open(path) as file:
+        templates[dir] = file.read()
 
 
-exit(0)
+# Load rss template
+with open(f"{source_dir}/rss-template.xml") as file:
+    templates["rss-feed"] = file.read()
 
+for key in templates:
+    print(templates[key])
 
 # A list of pages to save for the index page
-pages = []
+blogs = []
 
-for f in glob.iglob(f"{source_dir}/**/*.md"):
+for path in glob.iglob(f"{source_dir}/**/*.md"):
     # Open markdown file
-    with open(f, "r") as file:
+    with open(path, "r") as file:
         # extract frontmatter and raw markdown
         metadata, raw = frontmatter.parse(file.read())
 
@@ -442,37 +229,39 @@ for f in glob.iglob(f"{source_dir}/**/*.md"):
         continue
 
     # Save data in class
-    page_data = PageData(f, metadata, content)
+    page_data = PageData(path, metadata, content)
     # Append to pages list
-    pages.append(page_data)
+    blogs.append(page_data)
 
 # Sort the pages by `publish_date`
-pages.sort(key=lambda p: p.metadata["publish_date"], reverse=True)
+blogs.sort(key=lambda p: p.metadata["publish_date"], reverse=True)
 
-for index, page in enumerate(pages):
+for index, page in enumerate(blogs):
     # Create pathname for build dir
     slug = page.metadata["slug"] or os.path.splitext(os.path.basename(page.filepath))[0]
 
-    destination = os.path.join(build_dir, slug + ".html")
+    destination = os.path.join(build_dir, "blog", slug + ".html")
 
     # copy template to new variable
-    html = templates["page"]
+    html = templates["site"]
+    # Apply blog template to base template
+    html = html.replace("{{ content }}\n", templates["site/blog"])
 
     # Prepare other article links
     if index > 0:
-        next = pages[index - 1]
+        next = blogs[index - 1]
         page.metadata["next_href"] = str(next.metadata["slug"])
         page.metadata["next_title"] = str(next.metadata["title"])
 
-    if index < len(pages) - 1:
-        prev = pages[index + 1]
+    if index < len(blogs) - 1:
+        prev = blogs[index + 1]
         page.metadata["prev_href"] = prev.metadata["slug"]
         page.metadata["prev_title"] = prev.metadata["title"]
 
     html = fill_template(page.metadata, html)
 
     # replace the content template handle with the content from the html
-    html = html.replace("{{ content }}", page.content)
+    html = html.replace("{{ content }}\n", page.content)
 
     with open(destination, "w") as file:
         # write file
@@ -481,21 +270,32 @@ for index, page in enumerate(pages):
     print(f"file written to {destination}")
 
 
-# Create index page
-html = templates["index"]
-destination = os.path.join(build_dir, "index.html")
-content = ""
+index_data = {"blog": []}
+for page in blogs:
+    index_data["blog"].append(page.metadata)
 
-index_data = {"pages": []}
-for page in pages:
-    index_data["pages"].append(page.metadata)
+# Create html pages
+for path in glob.iglob(f"{source_dir}/**/*.html", recursive=True):
+    if "template.html" in path:
+        continue
 
-html = fill_template(index_data, templates["index"])
+    # Create index page
+    html = templates["site"]
+    destination = path.replace(source_dir, build_dir)
+    content = ""
 
-with open(destination, "w") as file:
-    file.write(html)
+    with open(path, "r") as file:
+        content = file.read()
 
-print("index page finished")
+    # Fill out base template with page content
+    html = html.replace("{{ content }}\n", content)
+    html = fill_template(index_data, html)
+
+    with open(destination, "w") as file:
+        file.write(html)
+
+    print(f"'{path}' page finished")
+
 
 # Create RSS file
 rss = templates["rss-feed"]
@@ -508,7 +308,7 @@ rss_data = {
     "items": [],
 }
 
-for page in pages:
+for page in blogs:
     data = page.metadata
     data["article"] = HTML.escape(page.content)
     rss_data["items"].append(data)

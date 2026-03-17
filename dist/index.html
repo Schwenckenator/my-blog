@@ -32,32 +32,290 @@
 	</header>
 	<main>
 		<section class="container">
-    {{ #each blog }}
+        <article>
+        <hgroup>
+            <div class="grid">
+                <h4>
+                    <a class="contrast" href="/blog/c-is-hard">
+                        C... is hard                    </a>
+                </h4>
+                <p class="to-end">11 March 2026</p>
+            </div>
+            <p>
+                <small>
+                                    </small>
+            </p>
+        </hgroup>
+                <footer>
+                        <code>#build-a-blog</code>
+            
+            <code>#personal</code>
+            
+        </footer>
+            </article>
+    
     <article>
         <hgroup>
             <div class="grid">
                 <h4>
-                    <a class="contrast" href="/{{ slug }}">
-                        {{ title }}
-                    </a>
+                    <a class="contrast" href="/blog/change-is-coming">
+                        Change... is coming                    </a>
                 </h4>
-                <p class="to-end">{{ publish_date }}</p>
+                <p class="to-end">24 February 2026</p>
             </div>
             <p>
                 <small>
-                    {{ description }}
-                </small>
+                                    </small>
             </p>
         </hgroup>
-        {{ #if tags }}
-        <footer>
-            {{ #each tags }}
-            <code>#{{ . }}</code>
-            {{ /each tags }}
+                <footer>
+                        <code>#build-a-blog</code>
+            
+            <code>#personal</code>
+            
         </footer>
-        {{ /if tags }}
-    </article>
-    {{ /each blog }}
+            </article>
+    
+    <article>
+        <hgroup>
+            <div class="grid">
+                <h4>
+                    <a class="contrast" href="/blog/floatnote-nvim">
+                        Introducing FloatNote.nvim                    </a>
+                </h4>
+                <p class="to-end">18 February 2026</p>
+            </div>
+            <p>
+                <small>
+                    My tiny neovim plugin for taking quick notes                </small>
+            </p>
+        </hgroup>
+                <footer>
+                        <code>#neovim</code>
+            
+            <code>#personal</code>
+            
+        </footer>
+            </article>
+    
+    <article>
+        <hgroup>
+            <div class="grid">
+                <h4>
+                    <a class="contrast" href="/blog/i-got-stuck">
+                        I got stuck                    </a>
+                </h4>
+                <p class="to-end">16 February 2026</p>
+            </div>
+            <p>
+                <small>
+                    I suffered a major case of programmers block, but I think I have a solution                </small>
+            </p>
+        </hgroup>
+                <footer>
+                        <code>#game-dev</code>
+            
+            <code>#personal</code>
+            
+        </footer>
+            </article>
+    
+    <article>
+        <hgroup>
+            <div class="grid">
+                <h4>
+                    <a class="contrast" href="/blog/new-game-prototype">
+                        Starting a new prototype                    </a>
+                </h4>
+                <p class="to-end">25 January 2026</p>
+            </div>
+            <p>
+                <small>
+                    True to my word, I have started work on a new game!                </small>
+            </p>
+        </hgroup>
+                <footer>
+                        <code>#game-dev</code>
+            
+            <code>#personal</code>
+            
+        </footer>
+            </article>
+    
+    <article>
+        <hgroup>
+            <div class="grid">
+                <h4>
+                    <a class="contrast" href="/blog/2026-new-year">
+                        New year, same me?                    </a>
+                </h4>
+                <p class="to-end">16 January 2026</p>
+            </div>
+            <p>
+                <small>
+                    My new years resolution for 2026                </small>
+            </p>
+        </hgroup>
+                <footer>
+                        <code>#new-years-resolution</code>
+            
+            <code>#personal</code>
+            
+        </footer>
+            </article>
+    
+    <article>
+        <hgroup>
+            <div class="grid">
+                <h4>
+                    <a class="contrast" href="/blog/creativity">
+                        Creativity                    </a>
+                </h4>
+                <p class="to-end">19 June 2025</p>
+            </div>
+            <p>
+                <small>
+                    An unstructured rant about my struggle with creativity and focus on my personal projects                </small>
+            </p>
+        </hgroup>
+                <footer>
+                        <code>#creatvity</code>
+            
+            <code>#personal</code>
+            
+        </footer>
+            </article>
+    
+    <article>
+        <hgroup>
+            <div class="grid">
+                <h4>
+                    <a class="contrast" href="/blog/pizza-sauce">
+                        Why I'm never buying pizza sauce again                    </a>
+                </h4>
+                <p class="to-end">19 June 2025</p>
+            </div>
+            <p>
+                <small>
+                    Why I'm never buying pizza sauce again                </small>
+            </p>
+        </hgroup>
+                <footer>
+                        <code>#cooking</code>
+            
+        </footer>
+            </article>
+    
+    <article>
+        <hgroup>
+            <div class="grid">
+                <h4>
+                    <a class="contrast" href="/blog/brainlife">
+                        brainlife                    </a>
+                </h4>
+                <p class="to-end">02 June 2025</p>
+            </div>
+            <p>
+                <small>
+                    I made a small esolang, that can replicate Conway's game of life                </small>
+            </p>
+        </hgroup>
+                <footer>
+                        <code>#js</code>
+            
+            <code>#esolang</code>
+            
+        </footer>
+            </article>
+    
+    <article>
+        <hgroup>
+            <div class="grid">
+                <h4>
+                    <a class="contrast" href="/blog/css-rss-and-rebuilds">
+                        Tags and Rss                    </a>
+                </h4>
+                <p class="to-end">20 May 2025</p>
+            </div>
+            <p>
+                <small>
+                    I finished up the main features of my blog build script. I add code highlighting to my code blocks with pygments, completely rebuild my templating, and top it off with tags and an rss feed.                </small>
+            </p>
+        </hgroup>
+                <footer>
+                        <code>#python</code>
+            
+            <code>#build-a-blog</code>
+            
+        </footer>
+            </article>
+    
+    <article>
+        <hgroup>
+            <div class="grid">
+                <h4>
+                    <a class="contrast" href="/blog/sorting-and-linking">
+                        Sorting and Linking                    </a>
+                </h4>
+                <p class="to-end">07 May 2025</p>
+            </div>
+            <p>
+                <small>
+                    My articles are sorting in the wrong order, and I want to put previous / next links into my pages.                </small>
+            </p>
+        </hgroup>
+                <footer>
+                        <code>#python</code>
+            
+            <code>#build-a-blog</code>
+            
+        </footer>
+            </article>
+    
+    <article>
+        <hgroup>
+            <div class="grid">
+                <h4>
+                    <a class="contrast" href="/blog/place-to-call-home">
+                        A place to call Home                    </a>
+                </h4>
+                <p class="to-end">04 May 2025</p>
+            </div>
+            <p>
+                <small>
+                    Welcome back, I'm still working on my static site generator / blog. This time I'll try and fix my codeblocks, and get a homepage with both of my posts on it done!                </small>
+            </p>
+        </hgroup>
+                <footer>
+                        <code>#python</code>
+            
+            <code>#build-a-blog</code>
+            
+        </footer>
+            </article>
+    
+    <article>
+        <hgroup>
+            <div class="grid">
+                <h4>
+                    <a class="contrast" href="/blog/start-of-blog">
+                        The start of my blog                    </a>
+                </h4>
+                <p class="to-end">26 April 2025</p>
+            </div>
+            <p>
+                <small>
+                    As I'm starting to get older, I'm having more and more opinions about all sorts of things. And considering the stranglehold big tech companies have on social media, the best way I think to get my thoughts out there, will be my very own site!...                </small>
+            </p>
+        </hgroup>
+                <footer>
+                        <code>#python</code>
+            
+            <code>#build-a-blog</code>
+            
+        </footer>
+            </article>
+    
 </section>
 	</main>
 	<footer class="container">

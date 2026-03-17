@@ -10,8 +10,8 @@
         {{ #each items }}
         <item>
             <title>{{ title }}</title>
-            <link>https://schwenckenator.dev/{{ slug }}</link>
-            <guid>https://schwenckenator.dev/{{ slug }}</guid>
+			<link>https://schwenckenator.dev/blog/{{ slug }}</link>
+			<guid>https://schwenckenator.dev/blog/{{ slug }}</guid>
             <pubDate>{{ publish_date }}</pubDate>
             <description>
                 {{ description }}

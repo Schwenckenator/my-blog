@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="color-scheme" content="light dark">
+	<meta name="fediverse:creator" content="@Schwenckenator@aus.social">
+	<link rel="stylesheet" href="/css/pico.jade.min.css">
+	<link rel="stylesheet" href="/css/index.css">
+	<link rel="stylesheet" href="/css/code.css">
+	<title>Schwenckenator.dev</title>
+</head>
+
+<body>
+	<header>
+		<hgroup class="container">
+			<h4>
+				Schwenckenator.dev
+			</h4>
+			<p>
+				Thoughts on personal projects, neovim, languages, and anything else that crosses my mind
+			</p>
+		</hgroup>
+		<nav class="container">
+			<ul class="short-li">
+				<li><a href="/" class="secondary">Home</a></li>
+				<li><a href="https://github.com/Schwenckenator/my-blog" class="secondary">Repo</a></li>
+				<li><a href="/rss.xml" class="secondary">RSS</a></li>
+			</ul>
+		</nav>
+	</header>
+	<main>
+		<section class="container">
+	<h1>Sorting and Linking</h1>
+	<p>
+				<code>#python</code>
+		
+		<code>#build-a-blog</code>
+		
+	</p>
+	<section>
+				<a href="place-to-call-home">← A place to call Home</a>
+				<span style="margin: 0 10px;"> | </span>
+				<a href="css-rss-and-rebuilds">Tags and Rss →</a>
+			</section>
+	<section>
+		<em>Published: 07 May 2025</em>
+	</section>
+	<hr>
+	<p>Welcome back to my series about building this very website!</p>
+<p>Early readers, if there are indeed early readers, may have noticed that my homepage currently displays my articles in chronological order. While this is fine when I have two articles, it is less desirable with more articles.</p>
+<h2>Sorting my articles</h2>
+<p>So the first order of business for this time, is to reverse the order that articles are displayed in. I'm going to lean on my markdown metadata from last time, and use the <code>publish_date</code> value to order articles in reverse chronological order.</p>
+<p>Which is easy enough! First I loop through all of the markdown files, and extract their metadata and content. The code I had from last time was mostly left intact, but I'll do the build operation later.</p>
+<div class="highlight"><pre><code><span class="c1"># A list of pages to save for the index page</span>
+<span class="n">pages</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">iglob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source_dir</span><span class="si">}</span><span class="s2">/**/*.md&quot;</span><span class="p">):</span>
+    <span class="c1"># Open markdown file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="c1"># extract frontmatter and raw markdown</span>
+        <span class="n">metadata</span><span class="p">,</span> <span class="n">raw</span> <span class="o">=</span> <span class="n">frontmatter</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="c1"># convert content to html</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">commonmark</span><span class="o">.</span><span class="n">commonmark</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+
+    <span class="c1"># if the page is not published, don&#39;t include it in the build</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;is_published&#39;</span><span class="p">]:</span>
+        <span class="k">continue</span>
+
+    <span class="c1"># Save data in class</span>
+    <span class="n">page_data</span> <span class="o">=</span> <span class="n">PageData</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+    <span class="c1"># Append to pages list</span>
+    <span class="n">pages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">page_data</span><span class="p">)</span>
+</code></pre></div>
+
+<p>I also created a small class to hold the data, along with the file path.</p>
+<div class="highlight"><pre><code><span class="k">class</span><span class="w"> </span><span class="nc">PageData</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A data class to hold page data&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filepath</span> <span class="o">=</span> <span class="n">filepath</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">content</span>
+</code></pre></div>
+
+<p>Then the sorting magic. The built in sort is usually more than sufficient, especially in cases like this. I provide a lambda function to tell the sort to sort by the <code>PageData</code>'s date, and also to reverse it.</p>
+<div class="highlight"><pre><code><span class="c1"># Sort the pages by `publish_date`</span>
+<span class="n">pages</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;publish_date&#39;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+
+<p>With that done, the rest of the build goes mostly the same, except I loop over this sorted array rather than the files directly. If you want to know exactly what changes, you're more than welcome to look at the repo on Github and inspect the diff!</p>
+<h2>Direct links to other articles</h2>
+<p>Now that I have the articles in the right order, I want to add links at the top &amp; bottom that link to the next article, so people can go to the next thing without having to go back to the home page.</p>
+<p>First, I'll need to add a spot for links in the template, like so.</p>
+<div class="highlight"><pre><code><span class="p">&lt;</span><span class="nt">section</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;container&quot;</span><span class="p">&gt;</span>
+	<span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>{{ title }}<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
++	<span class="p">&lt;</span><span class="nt">section</span><span class="p">&gt;</span>
++		<span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;{{ previous_href }}&quot;</span><span class="p">&gt;</span>← {{ previous_title }}<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
++		<span class="p">&lt;</span><span class="nt">span</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;margin: 0 10px;&quot;</span><span class="p">&gt;</span> | <span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
++		<span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;{{ next_href }}&quot;</span><span class="p">&gt;</span>{{ next_title }} →<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
++	<span class="p">&lt;/</span><span class="nt">section</span><span class="p">&gt;</span>
+	<span class="p">&lt;</span><span class="nt">section</span><span class="p">&gt;</span>
+		<span class="p">&lt;</span><span class="nt">em</span><span class="p">&gt;</span>Published: {{ publish_date }}<span class="p">&lt;/</span><span class="nt">em</span><span class="p">&gt;</span>
+	<span class="p">&lt;/</span><span class="nt">section</span><span class="p">&gt;</span>
++	<span class="p">&lt;</span><span class="nt">hr</span><span class="p">&gt;</span>
+	{{ content }}
+<span class="p">&lt;/</span><span class="nt">section</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<p>I've added a few new variables here, including the link urls and titles for the previous and next articles. I also added a <code>&lt;hr&gt;</code> just before the article proper starts because I think that looks good.</p>
+<p>With the template sorted, I need to make a way to specify the next / previous articles in the page data. I added a little something to the markdown render loop, taking advantage of the metadata which will automatically be rendered by my template function. To do this, I needed to switch the simple for loop into an enumerate loop, which is something new to me!</p>
+<div class="highlight"><pre><code><span class="o">~</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">page</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pages</span><span class="p">):</span>	
+	<span class="c1">#... other code</span>
+	
+<span class="o">+</span>	<span class="c1"># Prepare other article links</span>
+<span class="o">+</span>   <span class="k">if</span> <span class="n">pages</span><span class="p">[</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+<span class="o">+</span>       <span class="n">prev</span> <span class="o">=</span> <span class="n">pages</span><span class="p">[</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="o">+</span>       <span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;previous_href&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">]</span>
+<span class="o">+</span>       <span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;previous_title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
+<span class="o">+</span>   <span class="k">if</span> <span class="n">pages</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>
+<span class="o">+</span>       <span class="nb">next</span> <span class="o">=</span> <span class="n">pages</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+<span class="o">+</span>       <span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;next_href&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">next</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">]</span>
+<span class="o">+</span>       <span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;next_title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">next</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
+    
+    <span class="c1"># replace the other handles</span>
+    <span class="n">html</span> <span class="o">=</span> <span class="n">template_replace</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Annnd that broke my script. My javascript brain has failed me again.
+So I changed the <code>if</code> statement to check against length, rather than seeing if the element exists. I also forgot that my list is in reverse order (newest first), so I swapped the prev / next around.</p>
+<div class="highlight"><pre><code>    <span class="c1"># Prepare other article links</span>
+    <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">next</span> <span class="o">=</span> <span class="n">pages</span><span class="p">[</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;next_href&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">next</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">]</span>
+        <span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;next_title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">next</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">pages</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="n">pages</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;previous_href&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">]</span>
+        <span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;previous_title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">prev</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
+</code></pre></div>
+
+<p>And the links work! But, it's revealed another problem...</p>
+<h2>Unused template elements</h2>
+<p>Once the links were working, I noticed something on the first page.</p>
+<blockquote>
+<p><img src="/img/template-still-there.png" alt="The template {{ previous_title }} is still there" /></p>
+</blockquote>
+<p>This makes total sense, but it's a bigger problem that it seems.
+Because the template has these special sections, the simple solution is to check after all substitutions have been made, and delete any remaining template handles. Which would work to get rid of the visible handle.</p>
+<p>But the problem I now have with that, is I've put the template content within a <code>&lt;a&gt;</code> tag. Even if I delete the handles, the tag will remain, as will the arrow. I need to find a way to not render the entire tag when there is not a valid link.</p>
+<p>My solution, more partials! This link sounds like a kind of component, so I'm going to make a next link partial, and a previous link partial. If this was react or another js framework, I'd bundle them into a single component with logic, but why write smart code when lot dumb code do trick?</p>
+<p>The partials look like this</p>
+<div class="highlight"><pre><code><span class="cm">&lt;!-- Previous --&gt;</span>
+<span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;{{ href }}&quot;</span><span class="p">&gt;</span>← {{ title }}<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+
+<span class="cm">&lt;!-- Next --&gt;</span>
+<span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;{{ href }}&quot;</span><span class="p">&gt;</span>{{ title }} →<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<p>And the updated page template looks like this.</p>
+<div class="highlight"><pre><code><span class="p">&lt;</span><span class="nt">section</span><span class="p">&gt;</span>
+	{{ prev_link }}
+	<span class="p">&lt;</span><span class="nt">span</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;margin: 0 10px;&quot;</span><span class="p">&gt;</span> | <span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+	{{ next_link }}
+<span class="p">&lt;/</span><span class="nt">section</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<p>Now lets make it actually work. Leaning on the template function I already have, I modified the link building to render the partial, then assign the link metadata the whole tag.</p>
+<div class="highlight"><pre><code>    <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">next</span> <span class="o">=</span> <span class="n">pages</span><span class="p">[</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">link_metadata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;href&#39;</span><span class="p">:</span> <span class="nb">next</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="nb">next</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="n">link</span> <span class="o">=</span> <span class="n">template_replace</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="n">template</span><span class="p">[</span><span class="s1">&#39;next-link&#39;</span><span class="p">])</span>
+        <span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;next_link&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">link</span>
+</code></pre></div>
+
+<p>With this in place, the template handle if still of course there, but the <code>&lt;a&gt;</code> tag is gone.</p>
+<blockquote>
+<p><img src="/img/template-there-but-tag-gone.png" alt="{{ prev_link }} is visible, but it's no longer a link" /></p>
+</blockquote>
+<p>Now, I could write some code that deletes any left over handles on finishing. But that seems a bit like magic, and I want this to be a low magic build system. I can foresee pulling my hair out because my template won't render the thing I'm giving it, but I've made a simple spelling mistake. No thanks.</p>
+<p>I'm going to explicitly write in a None handler, that returns an empty string to delete the element.</p>
+<div class="highlight"><pre><code><span class="k">def</span><span class="w"> </span><span class="nf">template_replace</span><span class="p">(</span><span class="n">metadata</span><span class="p">,</span> <span class="n">template</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;replaces the template placeholder with metadata&quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">template</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;metadata key - &#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="s1">&#39;; value - &#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="o">~</span>           <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;It&#39;s NONE, deleting the handler&quot;</span><span class="p">)</span>
+<span class="o">~</span>           <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{{{</span><span class="s2"> </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> </span><span class="se">}}}}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="c1"># ...</span>
+</code></pre></div>
+
+<p>Then I use the else blocks of my prev / next checks to assign the metadata link key to None.</p>
+<div class="highlight"><pre><code>    <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">next</span> <span class="o">=</span> <span class="n">pages</span><span class="p">[</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">link_metadata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;href&#39;</span><span class="p">:</span> <span class="nb">next</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="nb">next</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="n">link</span> <span class="o">=</span> <span class="n">template_replace</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="n">template</span><span class="p">[</span><span class="s1">&#39;next-link&#39;</span><span class="p">])</span>
+        <span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;next_link&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">link</span>
+<span class="o">+</span>   <span class="k">else</span><span class="p">:</span>
+<span class="o">+</span>       <span class="c1"># Delete the template handle</span>
+<span class="o">+</span>       <span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;next_link&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+
+<p>And just like that, the first page's previous link is gone!</p>
+<blockquote>
+<p><img src="/img/template-gone.png" alt="The previous link is gone" /></p>
+</blockquote>
+<p>Lastly, of course I noticed after I did all this, I used the current page's metadata for the links, instead of the previous / next page's. So all my images have links with the wrong title text. Ah well, this is how real programming works. Simple enough fix, change <code>page.metadata</code> to <code>link_metadata</code> where appropriate.</p>
+<div class="highlight"><pre><code>    <span class="c1"># Prepare other article links</span>
+    <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">next</span> <span class="o">=</span> <span class="n">pages</span><span class="p">[</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">link_metadata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;href&#39;</span><span class="p">:</span> <span class="nb">next</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="nb">next</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">],</span>
+        <span class="p">}</span>
+<span class="o">~</span>       <span class="n">link</span> <span class="o">=</span> <span class="n">template_replace</span><span class="p">(</span><span class="n">link_metadata</span><span class="p">,</span> <span class="n">template</span><span class="p">[</span><span class="s1">&#39;next-link&#39;</span><span class="p">])</span>
+        <span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;next_link&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">link</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Delete the template handle</span>
+        <span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;next_link&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">pages</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="n">pages</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">link_metadata</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;href&#39;</span><span class="p">:</span> <span class="n">prev</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;slug&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="n">prev</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">],</span>
+        <span class="p">}</span>
+<span class="o">~</span>       <span class="n">link</span> <span class="o">=</span> <span class="n">template_replace</span><span class="p">(</span><span class="n">link_metadata</span><span class="p">,</span> <span class="n">template</span><span class="p">[</span><span class="s1">&#39;prev-link&#39;</span><span class="p">])</span>
+        <span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;prev_link&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">link</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Delete the template handle</span>
+        <span class="n">page</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;prev_link&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+
+<h2>Fixing the replacement</h2>
+<p>And now I discover, after checking this article so far, that I have done something very dumb. In the articles content above, my template handlers have been replaced by my function.</p>
+<blockquote>
+<p><img src="/img/code-example-has-link.png" alt="Code example turned into real link" /></p>
+</blockquote>
+<p>In theory it's a simple fix, I just have to replace the content after the other template tags.</p>
+<blockquote>
+<p><img src="/img/content-not-replaced.png" alt="Template handlers not replaced" /></p>
+</blockquote>
+<p>Easy!</p>
+<h2>Converting Obsidian image link paths</h2>
+<p>One last thing I've noticed, before I sign off and publish this, is that Obsidian is not currently playing nice with my images. I can have them render in Obsidian, or my built page, but not both. I like writing my articles in Obsidian, so I'm going to add an extra build step for the images, before the markdown is parsed to HTML.</p>
+<p>The problem is with file paths. If I write an explicit file path, it will work for the server, but because the articles are written with a different working directory, it doesn't work in Obsidian. So I can add a simple change where all images get modified to have a path to the image file.</p>
+<p>I ended up adding this to my file parsing  loop, and it works! I now have my images in Obsidian while I'm writing, and in the finished site!</p>
+<div class="highlight"><pre><code>    <span class="c1"># Open markdown file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="c1"># extract frontmatter and raw markdown</span>
+        <span class="n">metadata</span><span class="p">,</span> <span class="n">raw</span> <span class="o">=</span> <span class="n">frontmatter</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+<span class="o">+</span>       <span class="c1"># add `/img/` to image urls</span>
+<span class="o">+</span>       <span class="n">raw</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;!\[(.*)\]\((.*)\)&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;![\1](/img//img/\2)&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="p">)</span>
+
+        <span class="c1"># convert content to html</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">commonmark</span><span class="o">.</span><span class="n">commonmark</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</code></pre></div>
+
+<h2>What's next?</h2>
+<p>So this blog build system is coming along quite nicely now. I can write all my articles in Obsidian with no cleanup needed for the build output, and I've extended my templating engine to deal with article links. I'm honestly pretty happy with how this is turning out!</p>
+<p>I think I have a couple more things I'd like to do before putting this project (but not the blog!) down for a bit. First, I want to include some tags for articles, visible on the home page. As a diversify my articles, I want to make sure the reader knows what they're getting into. And I'd like to build an RSS file, so people that like them can read that way.</p>
+<p>Until next time, <br />
+pona tawa sina! mi tawa.</p>
+</section>
+	</main>
+	<footer class="container">
+		<div>
+			Find me elsewhere!
+		</div>
+		<section>
+			<nav>
+				<ul>
+					<li><a href="https://github.com/Schwenckenator/">GitHub</a></li>
+					/
+					<li><a href="https://bsky.app/profile/schwenckenator.bsky.social">Bluesky</a></li>
+					/
+					<li><a rel="me" href="https://aus.social/@Schwenckenator">Mastodon</a></li>
+				</ul>
+			</nav>
+		</section>
+	</footer>
+</body>
+
+</html>

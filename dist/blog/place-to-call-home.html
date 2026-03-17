@@ -32,17 +32,20 @@
 	</header>
 	<main>
 		<section class="container">
-	<h1></h1>
+	<h1>A place to call Home</h1>
 	<p>
+				<code>#python</code>
+		
+		<code>#build-a-blog</code>
 		
 	</p>
 	<section>
-		
-		<span style="margin: 0 10px;"> | </span>
-		
-	</section>
+				<a href="start-of-blog">← The start of my blog</a>
+				<span style="margin: 0 10px;"> | </span>
+				<a href="sorting-and-linking">Sorting and Linking →</a>
+			</section>
 	<section>
-		<em>Published: </em>
+		<em>Published: 04 May 2025</em>
 	</section>
 	<hr>
 	<p>sina lukin e ni la, sina pona a!</p>
@@ -240,8 +243,7 @@ slug: &#39;start-of-blog&#39;
     <span class="c1"># Replace metadata handles</span>
     <span class="n">link_html</span> <span class="o">=</span> <span class="n">template_replace</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">template</span><span class="p">[</span><span class="s1">&#39;page-link&#39;</span><span class="p">])</span>
     <span class="c1"># Add new link to index content</span>
-    <span class="n">content</span> <span class="o">+=</span> <span class="n">link_html</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">
-</span><span class="s2">&quot;</span>
+    <span class="n">content</span> <span class="o">+=</span> <span class="n">link_html</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
 </code></pre></div>
 
 <p>At long last, all we need to do now is replace the content placeholder with our list of links, and write the file to the <code>index.html</code>. Then we print that we finished, which is nice to know.</p>
