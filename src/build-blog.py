@@ -23,6 +23,9 @@ class PageData:
         self.metadata = metadata
         self.content = content
 
+    def __str__(self):
+        return f"{{ filepath: '{self.filepath}, metadata: '{self.metadata}'}}"
+
 
 class CodeFormatter(HtmlFormatter):
     def wrap(self, source):
@@ -52,7 +55,8 @@ def get_block_regex(key):
 
 
 def fill_template(data_dict, template, date_format="%d %B %Y"):
-    print("Filling template")
+    print("Filling template with data")
+    pp.pprint(data_dict)
     keys = re.findall(r"{{\s*(.*?)\s*}}", template)
     result = template
     for key in keys:
@@ -207,16 +211,21 @@ def load_file(path):
 
         # Save data in class
         page_data = PageData(path, metadata, content)
+
+        # Strip the root dir from the site data directory
+        site_dir = dir.replace(source_dir + "/", "").replace(source_dir, ".")
+
         # Append to list
-        site_data[dir].append(page_data)
+        site_data[site_dir].append(page_data)
 
 
 def render_file(path, dir):
     print(f"{path} is text!")
+    site_dir = dir.replace(source_dir + "/", "").replace(source_dir, ".")
 
     # Get page data
     page = None
-    for p in site_data[dir]:
+    for p in site_data[site_dir]:
         if p.filepath == path:
             page = p
             break
@@ -337,7 +346,8 @@ filetree = {}
 # Walk the directories
 for root, dirs, files in os.walk(source_dir):
     filetree[root] = []
-    site_data[root] = []
+    site_dir = root.replace(source_dir + "/", "").replace(source_dir, ".")
+    site_data[site_dir] = []
 
     for name in files:
         filetree[root].append(name)
