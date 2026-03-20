@@ -6,4 +6,4 @@ pip3 install python-frontmatter
 pip3 install pygments
 
 # run python script
-python3 src/build-blog.py
+python3 src/build_blog.py
