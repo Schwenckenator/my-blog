@@ -162,6 +162,26 @@ blockquote>*:last-child {
     margin-bottom: 0;
 }
 
+article>p:last-child {
+    margin-bottom: 0;
+}
+
+.flex {
+    display: flex;
+}
+
+.grow {
+    flex-grow: 1;
+}
+
+.gap-10 {
+    gap: 10px;
+}
+
+.no-margin {
+    margin: 0;
+}
+
 .to-end {
     justify-content: end;
     text-align: end;

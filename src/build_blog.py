@@ -271,9 +271,13 @@ def main():
 
         print(f"file written to {destination}")
 
-    index_data = {"blog": []}
+    index_data = {"blog": [], "latest_blog": []}
     for page in blogs:
         index_data["blog"].append(page.metadata)
+
+    # Only show latest 5
+    for page in blogs[:5]:
+        index_data["latest_blog"].append(page.metadata)
 
     # Create html pages
     for path in glob.iglob(f"{source_dir}/**/*.html", recursive=True):

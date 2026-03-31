@@ -1,28 +1,47 @@
 <section class="container">
-    {{ #each blog }}
+    <h5>About me</h5>
+    <p>
+        Welcome to my slice of the internet! I'm Matt, a.k.a the Schwenckenator, an Aussie front-end
+        web dev by day, and working on whatever catches my fancy by night.
+        <br>
+        I'm interested in Game dev, Web dev, Table-top RPGs, and Music, not
+        necessarily in that order.
+    <p>
+        I have built this site from scratch, currently using a custom python static site builder script.
+        You are welcome to check out the <a href="https://github.com/Schwenckenator/my-blog">repo here</a>,
+        but beware, it's very particular to how my site is made. Rather than using my script as is,
+        I would instead recommend learning from it and writing your own.
+    </p>
+    <p>
+        I tend to write about any projects that I am working on, with occasional bouts of rambling
+        nonsense on extremely niche and petty topics. See below for my latest!
+    </p>
+</section>
+<section class="container">
+    <h5>Latest Blogs</h5>
+    {{ #each latest_blog }}
     <article>
-        <hgroup>
-            <div class="grid">
-                <h4>
-                    <a class="contrast" href="/blog/{{ slug }}">
-                        {{ title }}
-                    </a>
-                </h4>
-                <p class="to-end">{{ publish_date }}</p>
+        <div class="flex gap-10">
+            <h4 class="no-margin">
+                <a class="contrast" href="/blog/{{ slug }}">
+                    {{ title }}
+                </a>
+            </h4>
+            <div>
+                {{ #each tags }}
+                <code>#{{ . }}</code>
+                {{ /each tags }}
             </div>
-            <p>
-                <small>
-                    {{ description }}
-                </small>
-            </p>
-        </hgroup>
-        {{ #if tags }}
-        <footer>
-            {{ #each tags }}
-            <code>#{{ . }}</code>
-            {{ /each tags }}
-        </footer>
-        {{ /if tags }}
+            <span class="to-end grow">{{ publish_date }}</span>
+        </div>
+        {{ #if description }}
+        <p>
+            <small>
+                {{ description }}
+            </small>
+        </p>
+        {{ /if description }}
     </article>
-    {{ /each blog }}
+    {{ /each latest_blog }}
+    <a href="/blog">Older articles</a>
 </section>
