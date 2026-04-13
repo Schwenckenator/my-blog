@@ -7,6 +7,7 @@ import datetime
 from zoneinfo import ZoneInfo
 import re
 import html as HTML
+import json
 
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
@@ -165,7 +166,7 @@ def main():
     os.mkdir(f"{build_dir}/blog")
 
     # copy css and img directories to build
-    copy_dirs = ["css", "img", "js"]
+    copy_dirs = ["css", "img", "js", "snd"]
     for dir in copy_dirs:
         copy_command = f'cp -r "./{source_dir}/{dir}" "./{build_dir}/{dir}"'
         os.system(copy_command)
@@ -271,13 +272,23 @@ def main():
 
         print(f"file written to {destination}")
 
-    index_data = {"blog": [], "latest_blog": []}
+    index_data = {
+        "blog": [],
+        "latest_blog": [],
+    }
     for page in blogs:
         index_data["blog"].append(page.metadata)
 
     # Only show latest 5
     for page in blogs[:5]:
         index_data["latest_blog"].append(page.metadata)
+
+    # Read other project metadata
+    with open(f"{source_dir}/metadata.json") as file:
+        data = json.load(file)
+        for key in data:
+            print("copying metadata: ", key)
+            index_data[key] = data[key]
 
     # Create html pages
     for path in glob.iglob(f"{source_dir}/**/*.html", recursive=True):

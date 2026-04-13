@@ -1,0 +1,65 @@
+{
+  "game": [
+    {
+      "title": "Fear the Night",
+      "image_src": "img/fear_the_night_thumb.png",
+      "description": "A game where you collect supplies during the day, and fight zombies at night. Made completely Solo for Brackey's Game Jam 2024-2",
+      "link": "https://schwenckenator.itch.io/fear-the-night"
+    },
+    {
+      "title": "Ball and Chain",
+      "image_src": "img/ball_and_chain_thumb.png",
+      "description": "A chain swinging rage game. Made with a friend for GMTK Game Jam 2021. Quite possibly the most frustrating game I've ever made, but it's technically possible to beat. As in, I've beaten each section separately, but never all together.",
+      "link": "https://schwenckenator.itch.io/ball-and-chain"
+    },
+    {
+      "title": "Conquer!",
+      "image_src": "img/conquer_thumb.png",
+      "description": "A territory capturing game, made with a friend for GTMK Game Jam 2022",
+      "link": "https://schwenckenator.itch.io/conquer"
+    },
+    {
+      "title": "Cybersushi",
+      "image_src": "img/cybersushi_thumb.png",
+      "description": "Manage your restaurant, and keep your workers GENKI! Didn't quite turn out how I wanted, quite buggy. Made with a friend for GMTK Game Jam 2024",
+      "link": "https://schwenckenator.itch.io/cybersushi"
+    }
+  ],
+  "music": [
+    {
+      "music_title": "Hello Music",
+      "music_description": "My first proper crack at electronic music. Made with LMMS",
+      "audio_src": "snd/HelloMusic.ogg"
+    }
+  ],
+  "other_project": [
+    {
+      "other_title": "Brainlife",
+      "other_description": "A Brainfuck-like language that can replicate Conway's Game of life.",
+      "other_link": "https://brainlife.schwenckenator.dev"
+    }
+  ],
+  "idea": [
+    {
+      "idea_description": "Implementing lox in C from crafting interpreters"
+    },
+    {
+      "idea_description": "A markup language that compiles into HTML+CSS for static sites"
+    },
+    {
+      "idea_description": "Toy version control system, for learning how git works"
+    },
+    { "idea_description": "A hex-globe map editor for TTRPGs" },
+    { "idea_description": "A conlang with max 1000 words" },
+    {
+      "idea_description": "Treesitter based smart bracket closing plugin for Neovim"
+    }
+  ],
+  "finished_idea": [
+    {
+      "finished_idea_description": "A scratchpad plugin for neovim",
+      "finished_idea_done": "FloatNote.nvim",
+      "finished_idea_link": "/blog/floatnote-nvim"
+    }
+  ]
+}

@@ -166,6 +166,14 @@ article>p:last-child {
     margin-bottom: 0;
 }
 
+.cols {
+    display: flex;
+}
+
+.cols>* {
+    width: 50%;
+}
+
 .flex {
     display: flex;
 }

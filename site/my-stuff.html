@@ -1,0 +1,55 @@
+<section class="container">
+	<h2>My Stuff</h2>
+	<h3>Games</h3>
+	{{ #each game }}
+	<a href="{{ link }}">
+		<article class="flex gap-10">
+			<section style="min-width: 200px;">
+				<img width="200" height="160" src="{{ image_src }}">
+			</section>
+			<section>
+				<h4>{{ title }}</h4>
+				<p>{{ description }}</p>
+			</section>
+		</article>
+	</a>
+	{{ /each game }}
+	<h3>Music</h3>
+	{{ #each music }}
+	<article>
+		<h4>{{ music_title }}</h4>
+		<p>{{ music_description }}</p>
+		<audio controls>
+			<source src="{{ audio_src }}">
+		</audio>
+	</article>
+	{{ /each music }}
+	<h3>Other Stuff</h3>
+	{{ #each other_project }}
+	<article>
+		<a href="{{ other_link }}">
+			<h4>{{ other_title }}</h4>
+		</a>
+		<p>{{ other_description }}</p>
+	</article>
+	{{ /each other_project }}
+	<h3>Ideas / Project Graveyard</h3>
+	<article>
+		<ul>
+			{{ #each idea }}
+			<li>
+				{{ idea_description }}
+			</li>
+			{{ /each idea }}
+
+			{{ #each finished_idea }}
+			<li>
+				<s>
+					{{ finished_idea_description }}
+				</s>
+				<a href="{{ finished_idea_link }}">{{ finished_idea_done }}</a>
+			</li>
+			{{ /each finished_idea }}
+		</ul>
+	</article>
+</section>

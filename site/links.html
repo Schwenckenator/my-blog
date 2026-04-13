@@ -1,0 +1,43 @@
+<section class="container">
+    <h3>My Badge!</h3>
+    <article id="my-badge">
+        <a href="https://schwenckenator.dev"><img alt="schwenckenator.dev" width="88" height="31"
+                src="https://schwenckenator.dev/img/badge.gif"></a>
+        <button id="badge-copy-button">Copy</button>
+        <script>
+            document.querySelector("#badge-copy-button").addEventListener("click", () => {
+                const badgeSection = document.querySelector("#my-badge").children;
+                const badgeHtml = badgeSection.item(0).outerHTML;
+                navigator.clipboard.writeText(badgeHtml);
+
+                const btn = document.querySelector("#badge-copy-button")
+                btn.innerHTML = 'Copied!!'
+                setTimeout(() => {
+                    btn.innerHTML = 'Copy'
+                }, 3000)
+            });
+        </script>
+    </article>
+    <h3>Cool sites!</h3>
+    <article>
+        <p>
+            <a href="https://onio.neocities.org" title="Visit Onio Café"><img
+                    src="https://onio.neocities.org/thebutton.gif" alt="Come Chat With Us!" width="88" height="31"></a>
+            <a href="https://ransei.neocities.org/"><img src="https://ransei.neocities.org/assets/img/embeded.gif"></a>
+            <a href="https://libre.town"><img alt="Libre Town Badge"
+                    src="https://cdn.161.sh:8443/libre.town/graphics/gifs/8834_libretown.gif"></a>
+            <a href="https://senno.neocities.org/"><img src="https://senno.neocities.org/assets/img/sennobutton.gif"
+                    alt="Senno"></a>
+        </p>
+        <p>
+            Still collecting...
+        </p>
+    </article>
+    <h3>Other Stuff I like!</h3>
+    <article>
+        <a href="https://craftinginterpreters.com/">
+            <h4>Crafting Interpreters</h4>
+        </a>
+        <p>A fantastic book that walked my through writing my own languages.</p>
+    </article>
+</section>
