@@ -8,3 +8,6 @@
 *.kra~
 
 venv.sh
+
+#
+__pycache__/

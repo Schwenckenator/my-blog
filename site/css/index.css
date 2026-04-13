@@ -166,6 +166,14 @@ article>p:last-child {
     margin-bottom: 0;
 }
 
+header nav li>a {
+    color: var(--pico-primary);
+}
+
+header nav li>a:hover {
+    color: var(--pico-primary-hover);
+}
+
 .cols {
     display: flex;
 }
